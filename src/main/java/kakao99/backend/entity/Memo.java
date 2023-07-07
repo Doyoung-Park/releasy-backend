@@ -15,20 +15,14 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Table(name = "Logs_Memos")
-public class LogMemo {
+@Table(name = "Memos")
+public class Memo {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "log_memo_id")
+    @Column(name = "memo_id")
     private Long id;
 
-    private String log_before_status;   // 이슈 생성, 상태 변경, 완료 ...
-
-    private String log_after_status;   // 이슈 생성, 상태 변경, 완료 ...
-
     private String memo_content;    // 메모 내용
-
-    private String type;    // 메모 or 변경 기록
 
     @Column(name = "created_at", nullable = false, updatable = false)
     @Temporal(TemporalType.TIMESTAMP)

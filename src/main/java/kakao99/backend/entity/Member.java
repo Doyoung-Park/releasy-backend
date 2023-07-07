@@ -4,6 +4,7 @@ package kakao99.backend.entity;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -36,6 +37,7 @@ public class Member {
     private String nickname; // 닉네임
 
     @Column
+    @Email
     private String email; // 이메일
 
     private String password; // 이메일
@@ -72,6 +74,12 @@ public class Member {
     private Group group;
 
 
+    public Member updateOAuth(String email, String username) {
+        this.email = email;
+        this.username = username;
+
+        return this;
+    }
 }
 
 

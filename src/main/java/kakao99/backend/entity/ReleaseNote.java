@@ -58,5 +58,7 @@ public class ReleaseNote {
     @JoinColumn(name = "project_id")
     private Project project;
 
-
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "writer_id")
+    private Member member;
 }
