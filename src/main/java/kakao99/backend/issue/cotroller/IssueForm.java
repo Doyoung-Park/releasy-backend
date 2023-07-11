@@ -11,4 +11,5 @@ public class IssueForm {
     private String type;    // 이슈 타입
     private String description; // 이슈 설명
 
+    private Long userId;
 }

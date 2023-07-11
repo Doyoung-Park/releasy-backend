@@ -2,16 +2,18 @@ package kakao99.backend.entity;
 
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import net.minidev.json.annotate.JsonIgnore;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -52,7 +54,7 @@ public class Member {
     private String authority; // 권한
 
     @Column(name = "created_at", nullable = false, updatable = false)
-    @Temporal(TemporalType.TIMESTAMP)
+    @Temporal(TemporalType.DATE)
     @CreationTimestamp
     private Date createdAt; // 생성일
 
@@ -69,11 +71,16 @@ public class Member {
     @Column(name = "is_active")
     private Boolean isActive; // false: 탈퇴한 회원, true: 탈퇴x 회원도
 
-    @ManyToOne
+
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+    @JsonIgnore
     @JoinColumn(name = "group_id")
     private Group group;
 
-
+    @OneToMany(mappedBy = "member", fetch = FetchType.LAZY)
+    @JsonBackReference
+    private List<ReleaseNote> releaseNoteList;
     public Member updateOAuth(String email, String username) {
         this.email = email;
         this.username = username;

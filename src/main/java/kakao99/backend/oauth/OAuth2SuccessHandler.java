@@ -8,6 +8,7 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import kakao99.backend.entity.Member;
 import kakao99.backend.jwt.TokenProvider;
+import kakao99.backend.member.dto.Auth2UserInfoDTO;
 import kakao99.backend.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,6 +19,7 @@ import org.springframework.security.web.authentication.SimpleUrlAuthenticationSu
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.Map;
 import java.util.Optional;
 
@@ -74,7 +76,16 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         if (findMemberByEmail.isEmpty()) {
             Member member = saveOrUpdate(oAuthEmail,oAuthUserName, provider);
             String token = tokenProvider.createAccessToken(member);
-            response.sendRedirect("http://localhost:3000/signup?token=" + token);
+
+            PrintWriter writer = response.getWriter();
+            response.setStatus(200);
+            log.info("로그인 이름={}", oAuthUserName);
+            log.info("로그인 이메일={}", oAuthEmail);
+
+            Auth2UserInfoDTO userInfoDTO = new Auth2UserInfoDTO(oAuthUserName, oAuthEmail);
+
+            writer.write(objectMapper.writeValueAsString(userInfoDTO));
+            writer.flush();
         } else {
             log.info("바로 로그인");
         }

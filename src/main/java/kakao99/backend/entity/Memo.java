@@ -1,5 +1,6 @@
 package kakao99.backend.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,6 +10,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.util.Date;
+import java.util.Optional;
 
 @Entity
 @Getter
@@ -42,12 +44,37 @@ public class Memo {
     @Column(name = "is_active")
     private Boolean isActive; // false: 탈퇴한 회원, true: 탈퇴x 회원
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "issue_id")
+    @JsonManagedReference
     private Issue issue;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "writer_id")
+    @JsonManagedReference
     private Member member;
+
+    public static Memo createMemo(Member member,Issue issue,String memoContent,Date createdAt) {
+
+        return Memo.builder()
+                .memo_content(memoContent)
+                .isActive(true)  // Assuming memos are active when created
+                .issue(issue)
+                .member(member)
+                .createdAt(createdAt)
+                .build();
+    }
+
+    public void updateMemo(String memo_content, Date updatedAt){
+        this.memo_content = memo_content;
+        this.updatedAt = updatedAt;
+    }
+
+    public void deleteMemo(){
+        this.isActive = false;
+        this.deletedAt = new Date();
+    }
+
+
 
 }

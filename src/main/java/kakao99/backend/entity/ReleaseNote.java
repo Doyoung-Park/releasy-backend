@@ -1,10 +1,10 @@
 package kakao99.backend.entity;
 
+import com.fasterxml.jackson.annotation.JsonIdentityReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -41,24 +41,27 @@ public class ReleaseNote {
     @CreationTimestamp
     private Date createdAt; // 생성일
 
-    @Column(name = "updated_at", nullable = false)
+    @Column(name = "updated_at")
     @Temporal(TemporalType.TIMESTAMP)
     @UpdateTimestamp
     private Date updatedAt; // 수정일
 
-    @Column(name = "deleted_at", nullable = false)
+    @Column(name = "deleted_at")
     @Temporal(TemporalType.TIMESTAMP)
-    @UpdateTimestamp
     private Date deletedAt; // 삭제일
 
     @Column(name = "is_active")
     private Boolean isActive; // false: 탈퇴한 회원, true: 탈퇴x 회원도
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "project_id")
+    @JsonManagedReference
+    @JsonIgnore
     private Project project;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(cascade =  CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "writer_id")
+    @JsonManagedReference
+    @JsonIgnore
     private Member member;
 }
