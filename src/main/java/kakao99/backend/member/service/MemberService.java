@@ -1,6 +1,7 @@
 package kakao99.backend.member.service;
 
 import kakao99.backend.entity.Group;
+import kakao99.backend.entity.Issue;
 import kakao99.backend.entity.Member;
 import kakao99.backend.entity.Project;
 import kakao99.backend.group.repository.GroupRepository;
@@ -18,10 +19,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -146,5 +144,29 @@ public class MemberService {
     Boolean checkPassword(String rawPassword, String encodePassword) {
 
         return passwordEncoder.matches(rawPassword, encodePassword);
+    }
+
+    public ResponseEntity<?> getMemberOfProject(Long projectId) {
+        List<Member> memberByProjectId = memberProjectRepository.findMemberByProjectId(projectId);
+        if (memberByProjectId.isEmpty()) {
+            ResponseMessage message = responseMessage.createMessage(404, projectId+"번 프로젝트에 해당하는 회원이 존재하지 않습니다.");
+            return new ResponseEntity<>(message,HttpStatus.OK);
+        }
+
+        List<MemberInfoDTO> memberInfoDTOList = new ArrayList<>();
+
+            for (Member member : memberByProjectId) {
+                MemberInfoDTO memberInfoDTO = MemberInfoDTO.builder()
+                        .name(member.getUsername())
+                        .nickname(member.getNickname())
+                        .email(member.getEmail())
+//                        .groupName(member.getGroup().getName())
+                        .position(member.getPosition())
+//                        .projectList(projectList)
+                        .build();
+                memberInfoDTOList.add(memberInfoDTO);
+            }
+        ResponseMessage message = responseMessage.createMessage(200, projectId+"번 프로젝트의 회원 정보 조회 완료", memberInfoDTOList);
+        return new ResponseEntity<>(message, HttpStatus.OK);
     }
 }

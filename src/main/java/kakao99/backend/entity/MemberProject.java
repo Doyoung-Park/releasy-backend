@@ -30,7 +30,7 @@ public class MemberProject {
     @CreationTimestamp
     private Date createdAt; // 생성일
 
-    @Column(name = "updated_at", nullable = false)
+    @Column(name = "updated_at")
     @Temporal(TemporalType.TIMESTAMP)
     @UpdateTimestamp
     private Date updatedAt; // 수정일
