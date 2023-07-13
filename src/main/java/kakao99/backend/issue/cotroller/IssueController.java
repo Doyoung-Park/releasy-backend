@@ -10,6 +10,7 @@ import kakao99.backend.issue.dto.IssueDTO;
 
 
 import kakao99.backend.issue.repository.IssueRepository;
+import kakao99.backend.issue.repository.IssueRepositoryImpl;
 import kakao99.backend.issue.service.IssueService;
 import kakao99.backend.member.repository.MemberRepository;
 import kakao99.backend.project.repository.ProjectRepository;
@@ -32,10 +33,13 @@ public class IssueController {
 
     private final ResponseMessage responseMessage;
     private final IssueRepository issueRepository;
+    private final IssueRepositoryImpl issueRepositoryImpl;
     private final IssueService issueService;
     private final MemberRepository memberRepository;
     private final ProjectRepository projectRepository;
 
+
+    // 이슈 생성
     @PostMapping("/api/{projectId}/issue/new")
     public ResponseEntity<?> createIssue(@RequestBody IssueForm issue, @PathVariable("projectId") Long projectId) {
         System.out.println("userId = " + issue.getUserId());
@@ -70,6 +74,8 @@ public class IssueController {
         return new ResponseEntity(message, HttpStatus.OK);
     }
 
+
+    // 프로젝트 id로 모든 이슈 조회
     @GetMapping("api/{projectId}/issues")
     public ResponseEntity<?> getAllIssues(@PathVariable("projectId") Long projectId) {
 
@@ -81,6 +87,8 @@ public class IssueController {
         return new ResponseEntity(message, HttpStatus.OK);
     }
 
+
+    // 이슈 정보 업데이트
     @PutMapping("/api/{projectId}/issues/{issueId}")
     public ResponseEntity<?> updateIssue(@PathVariable("projectId") Long projectId, @PathVariable("issueId") Long issueId, @RequestBody UpdateIssueForm updateIssueForm) {
 //        System.out.println("projectId = " + projectId + ", issueId = " + issueId + ", title = " + title + ", description = " + description);
@@ -88,12 +96,14 @@ public class IssueController {
         ResponseMessage message = null;
         if (result == "OK") {
             message = responseMessage.createMessage(200, projectId + "번 프로젝트의 모든 이슈 수정 성공");
-        }else{
-            message = responseMessage.createMessage(500, projectId + "번 프로젝트의 모든 이슈 수정 실패: "+result);
+        } else {
+            message = responseMessage.createMessage(500, projectId + "번 프로젝트의 모든 이슈 수정 실패: " + result);
         }
         return new ResponseEntity(message, HttpStatus.OK);
     }
 
+
+    // releaseNote id로 모든 이슈 조회
     @GetMapping("/api/releaseNote/{releaseNoteId}/issues")
     public ResponseEntity<?> getIssuesByReleaseNote(@PathVariable("releaseNoteId") Long releaseNoteId) {
 
@@ -102,8 +112,18 @@ public class IssueController {
         return new ResponseEntity(message, HttpStatus.OK);
     }
 
+    @GetMapping("/api/project/{projectId}/releaseNote/{releaseNoteId}/issues")
+    public ResponseEntity<?> findAllByNotReleaseNoteId(@PathVariable("releaseNoteId") Long releaseNoteId, @PathVariable("projectId") Long projectId) {
+
+        ArrayList<IssueDTO> allByNotReleaseNoteId = issueService.findAllByNotReleaseNoteId(releaseNoteId, projectId);
+
+        ResponseMessage message = responseMessage.createMessage(200, "릴리즈 노트에 포함되지 않은 이슈 조회 성공", allByNotReleaseNoteId);
+        return new ResponseEntity(message, HttpStatus.OK);
+    }
+
 
     @GetMapping("/test/test/{releaseNoteId}")
+
     public List<Issue> test2(@PathVariable("releaseNoteId") Long releaseNoteId) {
 
 //        System.out.println("userId = " + testForm.getUserId());
@@ -113,6 +133,16 @@ public class IssueController {
 
         return allIssuesByReleaseNoteId;
     }
+//    @GetMapping("/test/test/project/{projectId}")
+//    public List<?> test3(@PathVariable("projectId") Long projectId) {
+//
+////        System.out.println("userId = " + testForm.getUserId());
+//
+////        List<?> allByProjectIdImpl = issueRepositoryImpl.findAllByProjectIdImpl(projectId);
+//
+//
+//        return allByProjectIdImpl;
+//    }
 
     //  내가 속한 그룹에서 내가 포함되지 않은 프로젝트 조회해오기
     // 파라미터 groupId, userId
