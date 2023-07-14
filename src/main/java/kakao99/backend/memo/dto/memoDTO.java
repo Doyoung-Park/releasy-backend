@@ -16,34 +16,32 @@ public class memoDTO {
 
     private Long id;
 
-    private Long memberId;
 
     private Long issueId;
 
+    private String memo_content;
+
     private String memberNickname;
 
-    private String title;
+//    private String title;
 
-    private String description;
+//    private String description;
+    private String memberNickName;
 
-    private String memoContent;
 
     private Date createdAt;
 
     private Date updatedAt;
 
-    public static memoDTO MemoDTO(Long memoId,Long memberId, Long issueId, String memberNickname,String title,
-                                  String description,String memoContent,Date createdAt,Date updatedAt ) {
+    public static memoDTO MemoDTO(Long memoId, Long issueId, String memberNickname
+                            ,String memoContent,Date createdAt,Date updatedAt ) {
 
 
         return memoDTO.builder()
                 .id(memoId)
-                .memberId(memberId)
                 .issueId(issueId)
                 .memberNickname(memberNickname)
-                .title(title)
-                .description(description)
-                .memoContent(memoContent)
+                .memo_content(memoContent)
                 .createdAt(createdAt)
                 .updatedAt(updatedAt)
                 .build();

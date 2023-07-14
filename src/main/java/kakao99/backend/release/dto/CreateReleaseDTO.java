@@ -1,4 +1,4 @@
-package kakao99.backend.release.DTO;
+package kakao99.backend.release.dto;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -22,4 +22,7 @@ public class CreateReleaseDTO {
     private Date releaseDate;   // 배포일
     private String brief;   //  요약
     private String description; //세부 설명
+
+    private Long memberId;
+    private Long projectId;
 }

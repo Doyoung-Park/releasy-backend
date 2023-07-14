@@ -12,6 +12,6 @@ public class ProjectDTO {
 
     private String description; // 설명
 
-    private Long group_id;
+    private String status;
 
 }

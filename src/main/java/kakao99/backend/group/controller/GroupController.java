@@ -16,19 +16,19 @@ import org.springframework.web.bind.annotation.*;
 public class GroupController {
     private final GroupService groupService;
 
-    @PostMapping("/group")
+    @PostMapping("/api/group")
     public ResponseEntity<?> createGroup(@RequestBody GroupDTO groupDTO) {
 
         return groupService.createGroup(groupDTO);
     }
 
-    @PatchMapping("/newGroupName")
+    @PatchMapping("/api/newGroupName")
     public ResponseEntity<?> updateGroup(@RequestBody GroupNameDTO groupNameDTO) {
 
         return groupService.updateGroupName(groupNameDTO);
     }
 
-    @DeleteMapping ("/group")
+    @DeleteMapping ("/api/group")
     public ResponseEntity<?> deleteGroup(@RequestBody GroupNameDTO groupNameDTO) {
 
         return groupService.removeGroup(groupNameDTO);

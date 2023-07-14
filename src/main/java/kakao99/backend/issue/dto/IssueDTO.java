@@ -43,7 +43,7 @@ public class IssueDTO {
 //    private List<Memo> comments;
 
 
-//@QueryProjection
+//@QueryProjection87
 //    public IssueDTO(Long id, Integer issueNum, String title, String issueType, String description, String status, Integer listPosition, String file, Date createdAt, MemberInfoDTO memberIdInCharge) {
 //        this.id = id;
 //        this.issueNum = issueNum;

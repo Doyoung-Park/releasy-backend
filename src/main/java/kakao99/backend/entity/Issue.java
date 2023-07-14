@@ -81,4 +81,15 @@ public class Issue {
     private ReleaseNote releaseNote;
 
 
+    public Issue addReleaseNote(ReleaseNote releaseNote) {
+        this.releaseNote = releaseNote;
+
+        return this;
+    }
+
+    public Issue deleteReleaseNote() {
+        this.releaseNote = null;
+        return this;
+    }
+
 }

@@ -1,12 +1,15 @@
 package kakao99.backend.project.repository;
 
 
+import com.querydsl.jpa.impl.JPAUpdateClause;
 import kakao99.backend.entity.MemberProject;
 import kakao99.backend.entity.Project;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
 import kakao99.backend.entity.*;
 import org.springframework.stereotype.Repository;
+
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -50,12 +53,36 @@ public class MemberProjectRepository{
                 .fetch();
     }
 
-    public List<Project> findProjectByMemberId(Long memberId) {
+    public List<Project> findProjectByMemberId(Long memberId, String isActive) {
         return query
                 .select(project)
                 .from(memberProject)
-                .where(memberProject.member.id.eq(memberId))
+                .where(memberProject.member.id.eq(memberId)
+                        .and(project.isActive.eq(isActive))) // and 조건을 올바른 위치로 이동
                 .fetch();
+    }
+
+
+    public List<Project> findOtherProject(Long memberId,Long groupId, String isActive) {
+        return query
+                .select(project)
+                .from(memberProject)
+                .where(memberProject.member.id.ne(memberId)
+                        .and(project.isActive.eq(isActive)
+                                .and(project.group.id.eq(groupId))))
+
+                .fetch();
+    }
+
+
+
+    public void deleteMemberProjectByProjectId(Long projectId) {
+        Date currentTime = new Date();
+        new JPAUpdateClause(em, memberProject)
+                .set(memberProject.isActive, "false")
+                .set(memberProject.deletedAt, currentTime)
+                .where(memberProject.project.id.eq(projectId))
+                .execute();
     }
 
 }

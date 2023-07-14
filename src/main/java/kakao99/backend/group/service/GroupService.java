@@ -25,11 +25,12 @@ import java.util.stream.Collectors;
 public class GroupService {
 
     private final GroupRepository groupRepository;
-    private final ResponseMessage responseMessage;
+
+
     public ResponseEntity<?> createGroup(GroupDTO groupDTO) {
         Group group = groupDTO.toEntity();
         groupRepository.save(group);
-        ResponseMessage message = responseMessage.createMessage(200, "그룹 생성 완료");
+        ResponseMessage message = new ResponseMessage(200, "그룹 생성 완료");
 
         return new ResponseEntity<>(message, HttpStatus.OK);
     }
@@ -43,12 +44,12 @@ public class GroupService {
         }
         catch(Exception e){
             System.out.println("코드에 맞는 그룹이 존재하지 않습니다.");
-            ResponseMessage message = responseMessage.createMessage(500, "그룹 수정 실패");
+            ResponseMessage message = new ResponseMessage(500, "그룹 수정 실패");
 
             return new ResponseEntity<>(message, HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
-        ResponseMessage message = responseMessage.createMessage(200, "그룹 수정 완료");
+        ResponseMessage message = new ResponseMessage(200, "그룹 수정 완료");
 
         return new ResponseEntity<>(message, HttpStatus.OK);
     }
@@ -62,11 +63,11 @@ public class GroupService {
         }
         catch(Exception e){
             System.out.println("코드에 맞는 그룹이 존재하지 않습니다.");
-            ResponseMessage message = responseMessage.createMessage(500, "프로젝트 삭제 실패");
+            ResponseMessage message = new ResponseMessage(500, "프로젝트 삭제 실패");
 
             return new ResponseEntity<>(message, HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        ResponseMessage message = responseMessage.createMessage(200, "그룹 삭제 완료");
+        ResponseMessage message = new ResponseMessage(200, "그룹 삭제 완료");
 
         return new ResponseEntity<>(message, HttpStatus.OK);
     }

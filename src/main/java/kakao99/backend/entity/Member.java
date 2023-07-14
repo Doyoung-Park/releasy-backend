@@ -80,6 +80,7 @@ public class Member {
 
     @OneToMany(mappedBy = "member", fetch = FetchType.LAZY)
     @JsonBackReference
+    @JsonIgnore
     private List<ReleaseNote> releaseNoteList;
     public Member updateOAuth(String email, String username) {
         this.email = email;

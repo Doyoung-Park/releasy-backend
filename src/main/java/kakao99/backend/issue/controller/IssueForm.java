@@ -1,4 +1,4 @@
-package kakao99.backend.issue.cotroller;
+package kakao99.backend.issue.controller;
 
 import lombok.Getter;
 import lombok.Setter;

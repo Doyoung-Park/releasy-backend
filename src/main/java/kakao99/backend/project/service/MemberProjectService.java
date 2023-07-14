@@ -27,7 +27,6 @@ public class MemberProjectService {
     private final ProjectRepository projectRepository;
     private final GroupRepository groupRepository;
     private final MemberProjectRepository memberProjectRepository;
-    private final ResponseMessage responseMessage;
     private final MemberRepository memberRepository;
 
     public ResponseEntity<?> join(MemberProjectDTO memberProjectDTO) {
@@ -47,7 +46,7 @@ public class MemberProjectService {
                 .build();
 
         memberProjectRepository.save(memberProject);
-        ResponseMessage message = responseMessage.createMessage(200, "프로젝트 새로운 멤버 추가 완료");
+        ResponseMessage message = new ResponseMessage(200, "프로젝트 새로운 멤버 추가 완료");
         return new ResponseEntity<>(message, HttpStatus.OK);
     }
     @Transactional
@@ -55,7 +54,7 @@ public class MemberProjectService {
         Optional<MemberProject> optionalMemberProject = memberProjectRepository.findAllByProjectIdAndMemberId(memberProjectDTO.getProjectId(),memberProjectDTO.getMemberId());
         MemberProject memberProject =(MemberProject) optionalMemberProject.get();
         memberProject.deleteMember();
-        ResponseMessage message = responseMessage.createMessage(200, "프로젝트에서 멤버 삭제 완료");
+        ResponseMessage message = new ResponseMessage(200, "프로젝트에서 멤버 삭제 완료");
         return new ResponseEntity<>(message, HttpStatus.OK);
     }
 

@@ -1,5 +1,7 @@
 package kakao99.backend.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import kakao99.backend.group.dto.GroupNameDTO;
 import kakao99.backend.project.dto.ProjectModifyDTO;
@@ -47,8 +49,10 @@ public class Project {
     @Column(name = "is_active")
     private String isActive;
 
+    @JsonIgnoreProperties({"hibernateLazyInitializer"})
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "group_id")
+    @JsonIgnore
     private Group group;
 
     public Project updateProject(ProjectModifyDTO projectModifyDTO){

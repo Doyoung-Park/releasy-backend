@@ -28,7 +28,6 @@ public class MemberService {
     private final MemberRepository memberRepository;
     private final PasswordEncoder passwordEncoder;
     private final TokenProvider tokenProvider;
-    private final ResponseMessage responseMessage;
     private final GroupRepository groupRepository;
     private final MemberProjectRepository memberProjectRepository;
 
@@ -38,7 +37,7 @@ public class MemberService {
         Optional<Member> findEmailMember = memberRepository.findByEmail(registerDTO.getEmail());
 
         if (findEmailMember.isPresent()) {
-            ResponseMessage message = responseMessage.createMessage(400, "이미 가입된 이메일 입니다.");
+            ResponseMessage message = new ResponseMessage(400, "이미 가입된 이메일 입니다.");
             return new ResponseEntity<>(message, HttpStatus.OK);
         }
 
@@ -61,7 +60,7 @@ public class MemberService {
                 .build();
 
         memberRepository.save(member);
-        ResponseMessage message = responseMessage.createMessage(200,"회원가입이 완료 되었습니다.");
+        ResponseMessage message = new ResponseMessage(200,"회원가입이 완료 되었습니다.");
         return new ResponseEntity<>(message,HttpStatus.OK);
     }
 
@@ -70,7 +69,7 @@ public class MemberService {
         Optional<Group> byCode = groupRepository.findByCode(registerDTO.getGroupName());
 
         if (byCode.isEmpty()) {
-            ResponseMessage message = responseMessage.createMessage(404, "그룹이 존재하지 않습니다.");
+            ResponseMessage message = new ResponseMessage(404, "그룹이 존재하지 않습니다.");
             return new ResponseEntity<>(message,HttpStatus.OK);
         }
 
@@ -89,7 +88,7 @@ public class MemberService {
 
         memberRepository.save(member);
 
-        ResponseMessage message = responseMessage.createMessage(200,"회원가입이 완료 되었습니다.");
+        ResponseMessage message = new ResponseMessage(200,"회원가입이 완료 되었습니다.");
 
         return new ResponseEntity<>(message,HttpStatus.OK);
     }
@@ -100,19 +99,19 @@ public class MemberService {
         Optional<Member> byEmail = memberRepository.findByEmail(loginDTO.getEmail());
 
         if (byEmail.isEmpty()) {
-            ResponseMessage message = responseMessage.createMessage(404, "존재하지 않는 이메일 입니다.");
+            ResponseMessage message = new ResponseMessage(404, "존재하지 않는 이메일 입니다.");
             return new ResponseEntity<>(message, HttpStatus.NOT_FOUND);
         }
 
         Member member = byEmail.get();
 
         if (!checkPassword(loginDTO.getPassword(), member.getPassword())) {
-            ResponseMessage message = responseMessage.createMessage(400, "비밀번호가 일치 하지 않습니다.");
+            ResponseMessage message = new ResponseMessage(400, "비밀번호가 일치 하지 않습니다.");
             return new ResponseEntity<>(message, HttpStatus.BAD_REQUEST);
         }
 
         String accessToken = tokenProvider.createAccessToken(member);
-        ResponseMessage message = responseMessage.createMessage(200, "로그인이 완료 되었습니다.", accessToken);
+        ResponseMessage message = new ResponseMessage(200, "로그인이 완료 되었습니다.", accessToken);
         return new ResponseEntity<>(message, HttpStatus.OK);
     }
 
@@ -121,13 +120,14 @@ public class MemberService {
         Optional<Member> byId = memberRepository.findById(memberId);
 
         if (byId.isEmpty()) {
-            ResponseMessage message = responseMessage.createMessage(404, "회원 정보가 존재하지 않습니다.");
+            ResponseMessage message = new ResponseMessage(404, "회원 정보가 존재하지 않습니다.");
             return new ResponseEntity<>(message,HttpStatus.OK);
         }
 
         Member member = byId.get();
 
-        List<Project> projectList = memberProjectRepository.findProjectByMemberId(memberId);
+        List<Project> projectList = memberProjectRepository.findProjectByMemberId(memberId, "true");
+
         MemberInfoDTO memberInfoDTO = MemberInfoDTO.builder()
                 .name(member.getUsername())
                 .nickname(member.getNickname())
@@ -137,7 +137,7 @@ public class MemberService {
                 .projectList(projectList)
                 .build();
 
-        ResponseMessage message = responseMessage.createMessage(200, "회원 정보 조회 완료", memberInfoDTO);
+        ResponseMessage message = new ResponseMessage(200, "회원 정보 조회 완료", memberInfoDTO);
         return new ResponseEntity<>(message, HttpStatus.OK);
     }
 
@@ -149,7 +149,7 @@ public class MemberService {
     public ResponseEntity<?> getMemberOfProject(Long projectId) {
         List<Member> memberByProjectId = memberProjectRepository.findMemberByProjectId(projectId);
         if (memberByProjectId.isEmpty()) {
-            ResponseMessage message = responseMessage.createMessage(404, projectId+"번 프로젝트에 해당하는 회원이 존재하지 않습니다.");
+            ResponseMessage message = new ResponseMessage(404, projectId+"번 프로젝트에 해당하는 회원이 존재하지 않습니다.");
             return new ResponseEntity<>(message,HttpStatus.OK);
         }
 
@@ -166,7 +166,7 @@ public class MemberService {
                         .build();
                 memberInfoDTOList.add(memberInfoDTO);
             }
-        ResponseMessage message = responseMessage.createMessage(200, projectId+"번 프로젝트의 회원 정보 조회 완료", memberInfoDTOList);
+        ResponseMessage message = new ResponseMessage(200, projectId+"번 프로젝트의 회원 정보 조회 완료", memberInfoDTOList);
         return new ResponseEntity<>(message, HttpStatus.OK);
     }
 }

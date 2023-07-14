@@ -1,23 +1,18 @@
-package kakao99.backend.issue.repository;
+package kakao99.backend.issue.test;
 
-import jakarta.persistence.EntityManager;
 import kakao99.backend.entity.Issue;
-import kakao99.backend.entity.Member;
-import kakao99.backend.entity.Project;
-import kakao99.backend.issue.dto.MemberInfoDTO;
-import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
-public interface IssueRepository extends JpaRepository<Issue, Long> {
+public interface TestRepository extends JpaRepository<Issue, Long> {
     Issue save(Issue issue);
 
 //    Issue findByProjectIdAndIssueId(Long projectId, Long issueId);
@@ -26,7 +21,7 @@ public interface IssueRepository extends JpaRepository<Issue, Long> {
 //    List<Issue> findAllByProjectId(Long projectId);
 
     @Query("select m from Issue m join fetch m.project join fetch m.memberInCharge join fetch m.memberReport where m.project.id=:projectId and m.isActive = true")
-    List<Issue> findAllByProjectId(@Param("projectId") Long projectId);
+    Optional<Issue> findAllByProjectId(@Param("projectId") Long projectId);
 
 
     @Modifying
