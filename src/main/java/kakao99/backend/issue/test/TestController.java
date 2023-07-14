@@ -84,13 +84,13 @@ public class TestController {
                 .build();
     }
 
-    @GetMapping("/my/test/issue/{issueId}")
+//    @GetMapping("/my/test/issue/{issueId}")
     public ResponseEntity<?> optionalTestTryCatch(@PathVariable("issueId") Long issueId) {
 
         // 방법 2. try-catch
         Issue findIssue = null;
         try {
-            findIssue = testService.getOneIssueByProjectId(issueId);
+            findIssue = testService.getOneIssueByIssueId(issueId);
         } catch (Exception e) {
             System.out.println("Exception!");
             log.error("logger: NPE?");
@@ -104,4 +104,17 @@ public class TestController {
         return new ResponseEntity(message, HttpStatus.OK);
     }
 
+
+    @GetMapping("/my/test/issue/{issueId}")
+    public ResponseEntity<?> optionalTestGetElse(@PathVariable("issueId") Long issueId) {
+
+        Optional<Issue> byId = issueRepository.findById(issueId);
+
+        // NullPointException 이 발생하면 에러 메시지 발생하는 방법 3: Optional.orElse()
+        Issue myIssue = byId.orElse(null);
+
+//        Issue issue = byId.get();
+        ResponseMessage message = new ResponseMessage(200, issueId + " 번 멤버 조회 성공", myIssue);
+        return new ResponseEntity(message, HttpStatus.OK);
+    }
 }
