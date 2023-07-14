@@ -13,14 +13,20 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class TestService {
 
-    private final IssueRepository issueRepository;
+    private final TestRepository testRepository;
 
-    public Issue getOneIssueByProjectId(Long issueId) {
-        Optional<Issue> byId = issueRepository.findById(issueId);
+    public Issue getOneIssueByIssueId(Long issueId) {
+        Optional<Issue> byId = testRepository.findById(issueId);
         if (byId.isEmpty()) {
             throw new NoSuchElementException();
         }
         Issue myIssue = byId.get();
         return myIssue;
     }
+
+//    public List<Issue> getAllIssueByProjectId(Long projectId) {
+//        Optional<Issue> allByProjectId = testRepository.findAllByProjectId(projectId);
+//
+//    }
+
 }
