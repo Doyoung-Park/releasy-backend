@@ -116,31 +116,6 @@ public class IssueController {
     }
 
 
-    @GetMapping("/test/test/{releaseNoteId}")
-
-    public List<Issue> test2(@PathVariable("releaseNoteId") Long releaseNoteId) {
-
-//        System.out.println("userId = " + testForm.getUserId());
-
-        List<Issue> allIssuesByReleaseNoteId = issueRepository.getAllIssuesByReleaseNoteId(releaseNoteId);
-
-
-        return allIssuesByReleaseNoteId;
-    }
-
-//    @GetMapping("/test/test/project/{projectId}")
-//    public List<?> test3(@PathVariable("projectId") Long projectId) {
-//
-////        System.out.println("userId = " + testForm.getUserId());
-//
-////        List<?> allByProjectIdImpl = issueRepositoryImpl.findAllByProjectIdImpl(projectId);
-//
-//
-//        return allByProjectIdImpl;
-//    }
-
-
-
 }
 
 

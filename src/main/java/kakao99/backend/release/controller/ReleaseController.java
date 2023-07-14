@@ -119,6 +119,27 @@ public class ReleaseController {
         return new ResponseEntity<>(message, HttpStatus.OK);
     }
 
+
+    @PutMapping("/api/release/update/Test")
+    @ResponseBody
+    public ResponseEntity<ResponseMessage> updateReleaseTest(
+            @RequestBody UpdateReleaseDTO updateReleaseDTO) {
+        Optional<ReleaseNote> findReleaseNote = releaseService.getReleaseInfo(updateReleaseDTO.getReleaseId());
+
+        if (findReleaseNote.isEmpty()) {
+            ResponseMessage message = new ResponseMessage(204, "릴리즈 노트를 찾을 수 없습니다.", null);
+            return new ResponseEntity<>(message, HttpStatus.NOT_FOUND);
+        }
+
+        releaseService.updateRelease(updateReleaseDTO.getReleaseId(), updateReleaseDTO.getVersion(), updateReleaseDTO.getStatus(),
+                updateReleaseDTO.getPercent(), updateReleaseDTO.getReleaseDate(), updateReleaseDTO.getBrief(), updateReleaseDTO.getDescription());
+
+        // 또영이형 또와쭤!
+        releaseService.updateIssues(updateReleaseDTO.getProjectId(), updateReleaseDTO.getReleaseId(), updateReleaseDTO.getIssueList());
+
+        ResponseMessage message = new ResponseMessage(200, "릴리즈 업데이트 완료", null);
+        return new ResponseEntity<>(message, HttpStatus.OK);
+    }
 }
 
 

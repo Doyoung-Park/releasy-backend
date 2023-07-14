@@ -44,3 +44,5 @@ out/
 *.DS_Store
 
 
+
+/src/main/java/kakao99/backend/issue/test

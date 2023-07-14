@@ -5,6 +5,7 @@ import kakao99.backend.issue.repository.IssueRepository;
 import kakao99.backend.member.repository.MemberRepository;
 import kakao99.backend.release.dto.CreateReleaseDTO;
 import kakao99.backend.release.repository.ReleaseRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -12,6 +13,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class ReleaseService {
 
     private ReleaseRepository releaseRepository;
@@ -19,12 +21,6 @@ public class ReleaseService {
     private IssueRepository issueRepository;
     private final ReleaseNoteRepository releaseNoteRepository;
 
-    public ReleaseService(ReleaseRepository releaseRepository, MemberRepository memberRepository,
-                          ReleaseNoteRepository releaseNoteRepository) {
-        this.memberRepository = memberRepository;
-        this.releaseRepository = releaseRepository;
-        this.releaseNoteRepository = releaseNoteRepository;
-    }
 
     public ReleaseNote createRelease(CreateReleaseDTO CreateReleaseDTO, Member member, Project project) {
 
@@ -85,7 +81,7 @@ public class ReleaseService {
 
         return;
 
-        // 또영이형 또와쭤!
+
     }
 
 
