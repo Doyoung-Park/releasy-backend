@@ -16,7 +16,7 @@ public class TestService {
 
     private final TestRepository testRepository;
 
-    public Issue getOneIssueByIssueId(Long issueId) throws RuntimeException {
+    public Issue getOneIssueByIssueId(Long issueId){
 //                    throw new NoSuchElementException();
         Optional<Issue> byId = testRepository.findById(issueId);
         if (byId.isEmpty()) {

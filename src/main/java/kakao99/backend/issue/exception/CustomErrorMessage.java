@@ -10,19 +10,19 @@ import lombok.Setter;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class CustomErrorMessage {
     @NotNull
-    private Integer statusCode;
+    private int statusCode;
 
     @NotNull
     private String message;
 
     private String place;
 
-    public CustomErrorMessage(Integer statusCode, String message) {
+    public CustomErrorMessage(int statusCode, String message) {
         this.statusCode = statusCode;
         this.message = message;
     }
 
-    public CustomErrorMessage(Integer statusCode, String message, String place) {
+    public CustomErrorMessage(int statusCode, String message, String place) {
         this.statusCode = statusCode;
         this.message = message;
         this.place = place;

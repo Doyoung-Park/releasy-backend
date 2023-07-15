@@ -14,7 +14,7 @@ public class ExceptionController extends ResponseEntityExceptionHandler {
     public ResponseEntity<?> testException(CustomException e) {
         System.out.println("Exception!!!");
 
-        CustomErrorMessage customErrorMessage = new CustomErrorMessage(500, e.getMessage(), e.getPlace());
+        CustomErrorMessage customErrorMessage = new CustomErrorMessage(999, e.getMessage(), e.getPlace());
 
         return new ResponseEntity<>(customErrorMessage, HttpStatus.NOT_IMPLEMENTED);
     }

@@ -108,7 +108,7 @@ public class TestController {
 
 
     @GetMapping("/my/test/issue/{issueId}")
-    public ResponseEntity<?> optionalTestGetElse(@PathVariable("issueId") Long issueId) throws RuntimeException {
+    public ResponseEntity<?> optionalTestGetElse(@PathVariable("issueId") Long issueId){
 
 //        Optional<Issue> byId = issueRepository.findById(issueId);
 //        Issue myIssue = testService.getOneIssueByIssueId(issueId);
