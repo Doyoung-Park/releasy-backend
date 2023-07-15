@@ -26,6 +26,7 @@ public class TestService {
 
 //    public List<Issue> getAllIssueByProjectId(Long projectId) {
 //        Optional<Issue> allByProjectId = testRepository.findAllByProjectId(projectId);
+//        allByProjectId.orElse()
 //
 //    }
 

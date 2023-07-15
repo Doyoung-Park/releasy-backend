@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
@@ -108,13 +109,36 @@ public class TestController {
     @GetMapping("/my/test/issue/{issueId}")
     public ResponseEntity<?> optionalTestGetElse(@PathVariable("issueId") Long issueId) {
 
-        Optional<Issue> byId = issueRepository.findById(issueId);
+//        Optional<Issue> byId = issueRepository.findById(issueId);
+        Issue myIssue = testService.getOneIssueByIssueId(issueId);
 
         // NullPointException 이 발생하면 에러 메시지 발생하는 방법 3: Optional.orElse()
-        Issue myIssue = byId.orElse(null);
+//        Issue myIssue = byId.orElse(null);
 
 //        Issue issue = byId.get();
         ResponseMessage message = new ResponseMessage(200, issueId + " 번 멤버 조회 성공", myIssue);
         return new ResponseEntity(message, HttpStatus.OK);
+    }
+
+//    @GetMapping("/my/test/issue/{projectId}")
+//    public ResponseEntity<?> optionalTestGetElse(@PathVariable("projectId") Long projectId) {
+//
+//        Optional<Issue> byId = issueRepository.findById(projectId);
+//
+//        testService.getAllIssueByProjectId(projectId);
+//        // NullPointException 이 발생하면 에러 메시지 발생하는 방법 3: Optional.orElse()
+////        Issue myIssue = byId.orElse(null);
+//
+////        Issue issue = byId.get();
+//        ResponseMessage message = new ResponseMessage(200, issueId + " 번 멤버 조회 성공", myIssue);
+//        return new ResponseEntity(message, HttpStatus.OK);
+//    }
+
+    @ExceptionHandler
+    public ResponseEntity<?> exception(Exception e) {
+
+        log.error("Error: " + e);
+        ResponseMessage message = new ResponseMessage(500, "Error");
+        return new ResponseEntity(message, HttpStatus.NOT_IMPLEMENTED);
     }
 }
