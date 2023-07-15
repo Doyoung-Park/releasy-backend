@@ -1,6 +1,7 @@
 package kakao99.backend.issue.test;
 
 import kakao99.backend.entity.Issue;
+import kakao99.backend.issue.exception.CustomException;
 import kakao99.backend.issue.repository.IssueRepository;
 import kakao99.backend.issue.repository.IssueRepositoryImpl;
 import kakao99.backend.issue.service.IssueService;
@@ -91,7 +92,7 @@ public class TestController {
         // 방법 2. try-catch
         Issue findIssue = null;
         try {
-            findIssue = testService.getOneIssueByIssueId(issueId);
+//            findIssue = testService.getOneIssueByIssueId(issueId);
         } catch (Exception e) {
             System.out.println("Exception!");
             log.error("logger: NPE?");
@@ -107,16 +108,20 @@ public class TestController {
 
 
     @GetMapping("/my/test/issue/{issueId}")
-    public ResponseEntity<?> optionalTestGetElse(@PathVariable("issueId") Long issueId) {
+    public ResponseEntity<?> optionalTestGetElse(@PathVariable("issueId") Long issueId) throws RuntimeException {
 
 //        Optional<Issue> byId = issueRepository.findById(issueId);
-        Issue myIssue = testService.getOneIssueByIssueId(issueId);
+//        Issue myIssue = testService.getOneIssueByIssueId(issueId);
+        Issue oneIssueByIssueId = testService.getOneIssueByIssueId(issueId);
 
         // NullPointException 이 발생하면 에러 메시지 발생하는 방법 3: Optional.orElse()
 //        Issue myIssue = byId.orElse(null);
 
 //        Issue issue = byId.get();
-        ResponseMessage message = new ResponseMessage(200, issueId + " 번 멤버 조회 성공", myIssue);
+//        ResponseMessage message = new ResponseMessage(200, issueId + " 번 멤버 조회 성공", myIssue);
+
+        ResponseMessage message = new ResponseMessage(200, issueId + " 번 멤버 조회 성공", "test Data");
+
         return new ResponseEntity(message, HttpStatus.OK);
     }
 
@@ -134,11 +139,11 @@ public class TestController {
 //        return new ResponseEntity(message, HttpStatus.OK);
 //    }
 
-    @ExceptionHandler
-    public ResponseEntity<?> exception(Exception e) {
-
-        log.error("Error: " + e);
-        ResponseMessage message = new ResponseMessage(500, "Error");
-        return new ResponseEntity(message, HttpStatus.NOT_IMPLEMENTED);
-    }
+//    @ExceptionHandler
+//    public ResponseEntity<?> exception(Exception e) {
+//
+//        log.error("Error: " + e);
+//        ResponseMessage message = new ResponseMessage(500, "Error");
+//        return new ResponseEntity(message, HttpStatus.NOT_IMPLEMENTED);
+//    }
 }
