@@ -147,3 +147,15 @@ public class TestController {
 //        return new ResponseEntity(message, HttpStatus.NOT_IMPLEMENTED);
 //    }
 }
+
+//    @Test
+//    public void deleteElement() {
+//
+//        List<String> list = Arrays.asList("A", "B", "C");
+//
+//        Stream<String> stream = list.stream();
+//
+//        stream.filter("A"::equals).forEach(System.out::println);
+//
+//
+//    }
