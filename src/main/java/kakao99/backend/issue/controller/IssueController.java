@@ -15,6 +15,7 @@ import kakao99.backend.member.repository.MemberRepository;
 import kakao99.backend.project.repository.ProjectRepository;
 import kakao99.backend.utils.ResponseMessage;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -25,6 +26,7 @@ import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
+@Slf4j
 public class IssueController {
 
     private final IssueRepository issueRepository;
@@ -101,8 +103,8 @@ public class IssueController {
     // releaseNote id로 모든 이슈 조회
     @GetMapping("/api/releaseNote/{releaseNoteId}/issues")
     public ResponseEntity<?> getIssuesByReleaseNote(@PathVariable("releaseNoteId") Long releaseNoteId) {
-
-        ArrayList<IssueDTO> allIssuesByReleaseNoteId = issueService.getAllIssuesByReleaseNoteId(releaseNoteId);
+        log.info("releaseNoteId로 모든 issue 조회");
+        List<IssueDTO> allIssuesByReleaseNoteId = issueService.getAllIssuesByReleaseNoteId(releaseNoteId);
         ResponseMessage message = new ResponseMessage(200, "릴리즈 노트의 관련된 이슈 조회 성공", allIssuesByReleaseNoteId);
         return new ResponseEntity(message, HttpStatus.OK);
     }
