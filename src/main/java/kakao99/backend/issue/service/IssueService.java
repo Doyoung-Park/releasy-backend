@@ -155,47 +155,71 @@ public class IssueService {
         return issueDTOList;
     }
 
-    public ArrayList<IssueDTO> findAllByNotReleaseNoteId(Long releaseNoteId, Long projectId){
+    public List<IssueDTO> findAllByNotReleaseNoteId(Long releaseNoteId, Long projectId){
         List<Issue> allByNotReleaseNoteId = issueRepository.findAllByNotReleaseNoteId(projectId);
-        System.out.println("allByNotReleaseNoteId = " + allByNotReleaseNoteId);
-        ArrayList<IssueDTO> issueDTOList = new ArrayList<>();
-
-        for (Issue issue : allByNotReleaseNoteId) {
-
-            Member memberInCharge = issue.getMemberInCharge();
-            Member memberReport = issue.getMemberReport();
-
-            MemberInfoDTO memberInChargeInfoDTO = MemberInfoDTO.builder()
-                    .name(memberInCharge.getUsername())
-                    .nickname(memberInCharge.getNickname())
-                    .email(memberInCharge.getEmail())
-                    .position(memberInCharge.getPosition())
-                    .build();
-
-            MemberInfoDTO memberReportInfoDTO = MemberInfoDTO.builder()
-                    .name(memberReport.getUsername())
-                    .nickname(memberReport.getNickname())
-                    .email(memberReport.getEmail())
-                    .position(memberReport.getPosition())
-                    .build();
-
-            IssueDTO issueDTO = IssueDTO.builder()
-                    .id(issue.getId())
-                    .issueNum(issue.getIssueNum())
-                    .title(issue.getTitle())
-                    .issueType(issue.getIssueType())
-                    .description(issue.getDescription())
-                    .status(issue.getStatus())
-                    .file(issue.getFile())
-                    .createdAt(issue.getCreatedAt())
-                    .memberIdInCharge(memberInChargeInfoDTO)
-                    .memberReport(memberReportInfoDTO)
-                    .importance(issue.getImportance())
-
-                    .build();
-
-            issueDTOList.add(issueDTO);
-        }
+        List<IssueDTO> issueDTOList = allByNotReleaseNoteId.stream().map(issue -> IssueDTO.builder()
+                .id(issue.getId())
+                .issueNum(issue.getIssueNum())
+                .title(issue.getTitle())
+                .issueType(issue.getIssueType())
+                .description(issue.getDescription())
+                .status(issue.getStatus())
+                .file(issue.getFile())
+                .createdAt(issue.getCreatedAt())
+                .memberIdInCharge(MemberInfoDTO.builder()
+                        .name(issue.getMemberInCharge().getUsername())
+                        .nickname(issue.getMemberInCharge().getNickname())
+                        .email(issue.getMemberInCharge().getEmail())
+                        .position(issue.getMemberInCharge().getPosition())
+                        .build())
+                .memberReport(MemberInfoDTO.builder()
+                        .name(issue.getMemberReport().getUsername())
+                        .nickname(issue.getMemberReport().getNickname())
+                        .email(issue.getMemberReport().getEmail())
+                        .position(issue.getMemberReport().getPosition())
+                        .build())
+                .importance(issue.getImportance())
+                .build()).collect(Collectors.toList());
         return issueDTOList;
+//        System.out.println("allByNotReleaseNoteId = " + allByNotReleaseNoteId);
+//        ArrayList<IssueDTO> issueDTOList = new ArrayList<>();
+//
+//        for (Issue issue : allByNotReleaseNoteId) {
+//
+//            Member memberInCharge = issue.getMemberInCharge();
+//            Member memberReport = issue.getMemberReport();
+//
+//            MemberInfoDTO memberInChargeInfoDTO = MemberInfoDTO.builder()
+//                    .name(memberInCharge.getUsername())
+//                    .nickname(memberInCharge.getNickname())
+//                    .email(memberInCharge.getEmail())
+//                    .position(memberInCharge.getPosition())
+//                    .build();
+//
+//            MemberInfoDTO memberReportInfoDTO = MemberInfoDTO.builder()
+//                    .name(memberReport.getUsername())
+//                    .nickname(memberReport.getNickname())
+//                    .email(memberReport.getEmail())
+//                    .position(memberReport.getPosition())
+//                    .build();
+//
+//            IssueDTO issueDTO = IssueDTO.builder()
+//                    .id(issue.getId())
+//                    .issueNum(issue.getIssueNum())
+//                    .title(issue.getTitle())
+//                    .issueType(issue.getIssueType())
+//                    .description(issue.getDescription())
+//                    .status(issue.getStatus())
+//                    .file(issue.getFile())
+//                    .createdAt(issue.getCreatedAt())
+//                    .memberIdInCharge(memberInChargeInfoDTO)
+//                    .memberReport(memberReportInfoDTO)
+//                    .importance(issue.getImportance())
+//
+//                    .build();
+//
+//            issueDTOList.add(issueDTO);
+//        }
+//        return issueDTOList;
     }
 }
