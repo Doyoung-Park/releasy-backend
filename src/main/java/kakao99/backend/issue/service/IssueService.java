@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -88,45 +89,69 @@ public class IssueService {
     }
 
 
-    public ArrayList<IssueDTO> getAllIssuesByReleaseNoteId(Long releaseNoteId) {
+    public List<IssueDTO> getAllIssuesByReleaseNoteId(Long releaseNoteId) {
         List<Issue> allIssuesByReleaseNoteId = issueRepository.findAllByReleaseNoteId(releaseNoteId);
-        ArrayList<IssueDTO> issueDTOList = new ArrayList<>();
-        for (Issue issue : allIssuesByReleaseNoteId) {
-
-            Member memberInCharge = issue.getMemberInCharge();
-            Member memberReport = issue.getMemberReport();
-
-            MemberInfoDTO memberInChargeInfoDTO = MemberInfoDTO.builder()
-                    .name(memberInCharge.getUsername())
-                    .nickname(memberInCharge.getNickname())
-                    .email(memberInCharge.getEmail())
-                    .position(memberInCharge.getPosition())
-                    .build();
-
-            MemberInfoDTO memberReportInfoDTO = MemberInfoDTO.builder()
-                    .name(memberReport.getUsername())
-                    .nickname(memberReport.getNickname())
-                    .email(memberReport.getEmail())
-                    .position(memberReport.getPosition())
-                    .build();
-
-            IssueDTO issueDTO = IssueDTO.builder()
-                    .id(issue.getId())
-                    .issueNum(issue.getIssueNum())
-                    .title(issue.getTitle())
-                    .issueType(issue.getIssueType())
-                    .description(issue.getDescription())
-                    .status(issue.getStatus())
-                    .file(issue.getFile())
-                    .createdAt(issue.getCreatedAt())
-                    .memberIdInCharge(memberInChargeInfoDTO)
-                    .memberReport(memberReportInfoDTO)
-                    .importance(issue.getImportance())
-
-                    .build();
-
-            issueDTOList.add(issueDTO);
-        }
+        List<IssueDTO> issueDTOList = allIssuesByReleaseNoteId.stream().map(issue -> IssueDTO.builder()
+                .id(issue.getId())
+                .issueNum(issue.getIssueNum())
+                .title(issue.getTitle())
+                .issueType(issue.getIssueType())
+                .description(issue.getDescription())
+                .status(issue.getStatus())
+                .file(issue.getFile())
+                .createdAt(issue.getCreatedAt())
+                .memberIdInCharge(MemberInfoDTO.builder()
+                                .name(issue.getMemberInCharge().getUsername())
+                                .nickname(issue.getMemberInCharge().getNickname())
+                                .email(issue.getMemberInCharge().getEmail())
+                                .position(issue.getMemberInCharge().getPosition())
+                                .build())
+                .memberReport(MemberInfoDTO.builder()
+                                .name(issue.getMemberReport().getUsername())
+                                .nickname(issue.getMemberReport().getNickname())
+                                .email(issue.getMemberReport().getEmail())
+                                .position(issue.getMemberReport().getPosition())
+                                .build())
+                .importance(issue.getImportance())
+                .build()).collect(Collectors.toList());
+//        ArrayList<IssueDTO> issueDTOList = new ArrayList<>();
+//        for (Issue issue : allIssuesByReleaseNoteId) {
+//
+//            Member memberInCharge = issue.getMemberInCharge();
+//            Member memberReport = issue.getMemberReport();
+//
+//            MemberInfoDTO memberInChargeInfoDTO = MemberInfoDTO.builder()
+//                    .name(memberInCharge.getUsername())
+//                    .nickname(memberInCharge.getNickname())
+//                    .email(memberInCharge.getEmail())
+//                    .position(memberInCharge.getPosition())
+//                    .build();
+//
+//            MemberInfoDTO memberReportInfoDTO = MemberInfoDTO.builder()
+//                    .name(memberReport.getUsername())
+//                    .nickname(memberReport.getNickname())
+//                    .email(memberReport.getEmail())
+//                    .position(memberReport.getPosition())
+//                    .build();
+//
+//            IssueDTO issueDTO = IssueDTO.builder()
+//                    .id(issue.getId())
+//                    .issueNum(issue.getIssueNum())
+//                    .title(issue.getTitle())
+//                    .issueType(issue.getIssueType())
+//                    .description(issue.getDescription())
+//                    .status(issue.getStatus())
+//                    .file(issue.getFile())
+//                    .createdAt(issue.getCreatedAt())
+//                    .memberIdInCharge(memberInChargeInfoDTO)
+//                    .memberReport(memberReportInfoDTO)
+//                    .importance(issue.getImportance())
+//
+//                    .build();
+//
+//            issueDTOList.add(issueDTO);
+//        }
+//        return issueDTOList;
         return issueDTOList;
     }
 
