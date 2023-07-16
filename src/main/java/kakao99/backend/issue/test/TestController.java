@@ -1,6 +1,7 @@
 package kakao99.backend.issue.test;
 
 import kakao99.backend.entity.Issue;
+import kakao99.backend.issue.exception.CustomException;
 import kakao99.backend.issue.repository.IssueRepository;
 import kakao99.backend.issue.repository.IssueRepositoryImpl;
 import kakao99.backend.issue.service.IssueService;
@@ -11,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
@@ -90,7 +92,7 @@ public class TestController {
         // 방법 2. try-catch
         Issue findIssue = null;
         try {
-            findIssue = testService.getOneIssueByIssueId(issueId);
+//            findIssue = testService.getOneIssueByIssueId(issueId);
         } catch (Exception e) {
             System.out.println("Exception!");
             log.error("logger: NPE?");
@@ -106,15 +108,42 @@ public class TestController {
 
 
     @GetMapping("/my/test/issue/{issueId}")
-    public ResponseEntity<?> optionalTestGetElse(@PathVariable("issueId") Long issueId) {
+    public ResponseEntity<?> optionalTestGetElse(@PathVariable("issueId") Long issueId){
 
-        Optional<Issue> byId = issueRepository.findById(issueId);
+//        Optional<Issue> byId = issueRepository.findById(issueId);
+//        Issue myIssue = testService.getOneIssueByIssueId(issueId);
+        Issue oneIssueByIssueId = testService.getOneIssueByIssueId(issueId);
 
         // NullPointException 이 발생하면 에러 메시지 발생하는 방법 3: Optional.orElse()
-        Issue myIssue = byId.orElse(null);
+//        Issue myIssue = byId.orElse(null);
 
 //        Issue issue = byId.get();
-        ResponseMessage message = new ResponseMessage(200, issueId + " 번 멤버 조회 성공", myIssue);
+//        ResponseMessage message = new ResponseMessage(200, issueId + " 번 멤버 조회 성공", myIssue);
+
+        ResponseMessage message = new ResponseMessage(200, issueId + " 번 멤버 조회 성공", "test Data");
+
         return new ResponseEntity(message, HttpStatus.OK);
     }
+
+//    @GetMapping("/my/test/issue/{projectId}")
+//    public ResponseEntity<?> optionalTestGetElse(@PathVariable("projectId") Long projectId) {
+//
+//        Optional<Issue> byId = issueRepository.findById(projectId);
+//
+//        testService.getAllIssueByProjectId(projectId);
+//        // NullPointException 이 발생하면 에러 메시지 발생하는 방법 3: Optional.orElse()
+////        Issue myIssue = byId.orElse(null);
+//
+////        Issue issue = byId.get();
+//        ResponseMessage message = new ResponseMessage(200, issueId + " 번 멤버 조회 성공", myIssue);
+//        return new ResponseEntity(message, HttpStatus.OK);
+//    }
+
+//    @ExceptionHandler
+//    public ResponseEntity<?> exception(Exception e) {
+//
+//        log.error("Error: " + e);
+//        ResponseMessage message = new ResponseMessage(500, "Error");
+//        return new ResponseEntity(message, HttpStatus.NOT_IMPLEMENTED);
+//    }
 }

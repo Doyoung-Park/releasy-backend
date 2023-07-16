@@ -27,6 +27,7 @@ public class IssueService {
     }
 
 
+
     public ArrayList<IssueDTO> getAllIssues(Long projectId) {
         List<Issue> allIssueByProjectId = issueRepository.findAllByProjectId(projectId);
         ArrayList<IssueDTO> issueDTOList = new ArrayList<>();
