@@ -2,7 +2,9 @@ package kakao99.backend.issue.test;
 
 
 import io.netty.util.internal.StringUtil;
+import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
+import org.hamcrest.core.IsNull;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -26,6 +28,9 @@ public class TestCode {
 
         // then
         expectedException.expect(ConcurrentModificationException.class);
+
+        Matcher<String> nullMatcher = new IsNull<>();  // 예외 메세지가 null임을 테스트하는 코드
+        expectedException.expectMessage(nullMatcher);
 
         // given
         ArrayList<Integer> objects = new ArrayList<>();
@@ -73,7 +78,7 @@ public class TestCode {
 
         /* THEN -> EXPECTED EXCEPTION MESSAGE */
 //        assertThat(exception.getMessage(), containsString(null));
-        assertThat(exception.getMessage(), Matchers.nullValue());
+        assertThat(exception.getMessage(), Matchers.nullValue());   // 예외 메세지가 null임을 테스트하는 코드
     }
 
 
