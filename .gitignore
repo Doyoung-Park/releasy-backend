@@ -41,4 +41,6 @@ out/
 /src/main/resources/application-oauth.properties
 
 ### DS_Store
-*.DS_Stroe
+*.DS_Store
+
+

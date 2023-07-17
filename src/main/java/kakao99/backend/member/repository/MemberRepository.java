@@ -2,6 +2,7 @@ package kakao99.backend.member.repository;
 
 import jakarta.persistence.EntityManager;
 import kakao99.backend.entity.Member;
+import kakao99.backend.entity.ReleaseNote;
 import kakao99.backend.issue.dto.MemberInfoDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -24,6 +25,8 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
 
     @Query("select new kakao99.backend.issue.dto.MemberInfoDTO(m.username, m.nickname, m.email, m.position ) from Member m where m.id = :memberId")
     MemberInfoDTO getMemberInfoDTO(@Param("memberId") Long memberId);
+
+
 
 
     /*

@@ -54,15 +54,16 @@ public class TokenProvider implements InitializingBean {
 
         return Jwts.builder()
                 .setSubject(String.valueOf(member.getId()))
-                .claim("memberId", member.getId())
-                .claim("groupId", member.getGroup().getCode())
-                .signWith(key, SignatureAlgorithm.HS256 )
+                .claim("member", member.getId())
+                .claim("group", member.getGroup().getId())
+                .signWith(key, SignatureAlgorithm.HS512 )
                 .setExpiration(validity)
                 .compact();
     }
 
 
     public Authentication getAuthentication(String token) {
+        log.info("token={}", token);
         Claims claims = Jwts
                 .parserBuilder()
                 .setSigningKey(key)
@@ -72,6 +73,7 @@ public class TokenProvider implements InitializingBean {
 
 
         Optional<Member> member = memberRepository.findById(Long.valueOf(claims.getSubject()));
+        log.info(member.get().getEmail());
         return new UsernamePasswordAuthenticationToken(member.get(),token);
     }
 

@@ -1,5 +1,6 @@
 package kakao99.backend.memo.service;
 
+import kakao99.backend.memo.dto.MemoCreationResponseDTO;
 import kakao99.backend.memo.dto.UpdateMemoDTO;
 import kakao99.backend.memo.dto.memoDTO;
 import kakao99.backend.entity.Issue;
@@ -30,7 +31,7 @@ public class MemoService {
 
 
     @Transactional
-    public Long createMemo(Long memberId, Long issueId, String content, Date createAt){
+    public MemoCreationResponseDTO createMemo(Long memberId, Long issueId, String content, Date createAt){
 
 
         Optional<Member> member = memberRepository.findById(memberId);
@@ -38,19 +39,23 @@ public class MemoService {
 
 
         //메모 생성
-        Memo newmemo = Memo.createMemo(member.get(), issue.get(), content,createAt);
+        Memo newmemo = Memo.createMemo(member.get(), issue.get(),content,createAt);
         memoRepository.save(newmemo);
 
-        return newmemo.getId();
+        MemoCreationResponseDTO response = new MemoCreationResponseDTO();
+        response.setMemoId(newmemo.getId());
+        response.setMemberNickname(member.get().getNickname());
+
+        return response;
     }
 
     public List<memoDTO>  getAllMemo(Long issueId){
-        List<Memo> memos = memoRepository.findAllByIssueId(issueId);
+        List<Memo> memos = memoRepository.findByIssueIdAndIsActiveTrue(issueId);
 
         List<memoDTO> MemoDTOList = new ArrayList<>();
         for (Memo memo : memos) {
-            memoDTO memodto = memoDTO.MemoDTO(memo.getId() , memo.getIssue().getMemberReport().getId() ,memo.getIssue().getId() ,memo.getIssue().getMemberReport().getNickname(),
-                    memo.getIssue().getTitle() ,memo.getIssue().getDescription() ,memo.getMemo_content() ,memo.getCreatedAt() ,memo.getUpdatedAt());
+            memoDTO memodto = memoDTO.MemoDTO(memo.getId()  ,memo.getIssue().getId(),memo.getMember().getNickname()
+                    ,memo.getMemo_content() ,memo.getCreatedAt() ,memo.getUpdatedAt());
 
             MemoDTOList.add(memodto);
         }
@@ -63,7 +68,7 @@ public class MemoService {
     public ResponseEntity<?> updateMemo(Long id, UpdateMemoDTO obj){
 
         try {
-            Optional<Memo> findmemo = memoRepository.findById(obj.getMemoId());
+            Optional<Memo> findmemo = memoRepository.findById(id);
             Memo memo = findmemo.get();
             memo.updateMemo(obj.getContent(),obj.getUpdatedAt());
         }
@@ -74,6 +79,12 @@ public class MemoService {
         return new ResponseEntity<>("프로젝트 수정", HttpStatus.OK);
 
     }
+
+
+    public List<Memo> findRelease(Long id) {
+        return memoRepository.findByIssueIdAndIsActiveTrue(id);
+    }
+
 
     @Transactional
     public ResponseEntity<?> deleteMemo(Long id){

@@ -16,11 +16,4 @@ public class ProjectModifyDTO {
     private String description; // 설명
 
     private String status;
-    public Project toEntity(){
-        return Project.builder()
-                .name(this.name)
-                .description(this.description)
-                .status(this.status)
-                .build();
-    }
 }

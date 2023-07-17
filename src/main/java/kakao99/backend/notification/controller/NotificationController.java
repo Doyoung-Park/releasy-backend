@@ -1,4 +1,4 @@
-package kakao99.backend.notification.cotroller;
+package kakao99.backend.notification.controller;
 
 import org.springframework.stereotype.Controller;
 

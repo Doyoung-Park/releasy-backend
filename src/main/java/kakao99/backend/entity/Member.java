@@ -39,6 +39,9 @@ public class Member {
     private String nickname; // 닉네임
 
     @Column
+    private String introduce; // 소개
+
+    @Column
     @Email
     private String email; // 이메일
 
@@ -58,12 +61,12 @@ public class Member {
     @CreationTimestamp
     private Date createdAt; // 생성일
 
-    @Column(name = "updated_at", nullable = false)
+    @Column(name = "updated_at")
     @Temporal(TemporalType.TIMESTAMP)
     @UpdateTimestamp
     private Date updatedAt; // 수정일
 
-    @Column(name = "deleted_at", nullable = false)
+    @Column(name = "deleted_at")
     @Temporal(TemporalType.TIMESTAMP)
     @UpdateTimestamp
     private Date deletedAt; // 삭제일
@@ -80,11 +83,19 @@ public class Member {
 
     @OneToMany(mappedBy = "member", fetch = FetchType.LAZY)
     @JsonBackReference
+    @JsonIgnore
     private List<ReleaseNote> releaseNoteList;
     public Member updateOAuth(String email, String username) {
         this.email = email;
         this.username = username;
 
+        return this;
+    }
+
+    public Member update(String introduce, String nickname, String position) {
+        this.nickname = nickname;
+        this.introduce = introduce;
+        this.position = position;
         return this;
     }
 }

@@ -4,23 +4,19 @@ import kakao99.backend.entity.Group;
 import kakao99.backend.entity.Project;
 import lombok.*;
 
+import java.util.Date;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class ProjectDTO {
     private String name;    // 제목
 
     private String description; // 설명
 
-    private String group_id;
-    public Project toEntity(Group group){
-        return Project.builder()
-                .name(this.name)
-                .description(this.description)
-                .status("running")
-                .isActive("true")
-                .deletedAt(null)
-                .group(group)
-                .build();
-    }
+    private String status;
+
+    private String role;
+
 }

@@ -30,7 +30,7 @@ public class Issue {
 
     private String title;   // 제목
 
-    private String issueType;  // 이슈 타입
+    private String issueType;  // 이슈 타입: 에러, task
 
     private String description; // 설명
 
@@ -47,12 +47,12 @@ public class Issue {
     @CreationTimestamp
     private Date createdAt; // 생성일
 
-    @Column(name = "updated_at", nullable = false)
+    @Column(name = "updated_at")
     @Temporal(TemporalType.TIMESTAMP)
     @UpdateTimestamp
     private Date updatedAt; // 수정일
 
-    @Column(name = "deleted_at", nullable = false)
+    @Column(name = "deleted_at")
     @Temporal(TemporalType.TIMESTAMP)
     @UpdateTimestamp
     private Date deletedAt; // 삭제일
@@ -75,9 +75,21 @@ public class Issue {
     @JoinColumn(name = "project_id")
     private Project project;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "release_note_id")
+    @JsonIgnore
     private ReleaseNote releaseNote;
 
+
+    public Issue addReleaseNote(ReleaseNote releaseNote) {
+        this.releaseNote = releaseNote;
+
+        return this;
+    }
+
+    public Issue deleteReleaseNote() {
+        this.releaseNote = null;
+        return this;
+    }
 
 }

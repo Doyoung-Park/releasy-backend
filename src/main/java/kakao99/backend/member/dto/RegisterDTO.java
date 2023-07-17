@@ -17,6 +17,8 @@ public class RegisterDTO {
     @NotBlank
     private String nickname;
 
+    private String provider;
+
     @Email
     private String email;
 

@@ -1,4 +1,4 @@
-package kakao99.backend.issue.cotroller;
+package kakao99.backend.issue.controller;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -11,5 +11,5 @@ public class IssueForm {
     private String type;    // 이슈 타입
     private String description; // 이슈 설명
 
-    private Long projectId;
+    private Long userId;
 }

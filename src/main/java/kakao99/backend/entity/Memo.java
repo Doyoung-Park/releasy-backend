@@ -31,14 +31,12 @@ public class Memo {
     @CreationTimestamp
     private Date createdAt; // 생성일
 
-    @Column(name = "updated_at", nullable = false)
+    @Column(name = "updated_at")
     @Temporal(TemporalType.TIMESTAMP)
-    @UpdateTimestamp
     private Date updatedAt; // 수정일
 
-    @Column(name = "deleted_at", nullable = false)
+    @Column(name = "deleted_at")
     @Temporal(TemporalType.TIMESTAMP)
-    @UpdateTimestamp
     private Date deletedAt; // 삭제일
 
     @Column(name = "is_active")
@@ -57,11 +55,13 @@ public class Memo {
     public static Memo createMemo(Member member,Issue issue,String memoContent,Date createdAt) {
 
         return Memo.builder()
-                .memo_content(memoContent)
-                .isActive(true)  // Assuming memos are active when created
-                .issue(issue)
                 .member(member)
+                .issue(issue)
+                .memo_content(memoContent)
                 .createdAt(createdAt)
+                .updatedAt(null)
+                .deletedAt(null)
+                .isActive(true)  // Assuming memos are active when created
                 .build();
     }
 

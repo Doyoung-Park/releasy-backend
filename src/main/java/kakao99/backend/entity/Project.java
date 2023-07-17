@@ -1,5 +1,7 @@
 package kakao99.backend.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import kakao99.backend.group.dto.GroupNameDTO;
 import kakao99.backend.project.dto.ProjectModifyDTO;
@@ -35,7 +37,7 @@ public class Project {
     @CreationTimestamp
     private Date createdAt; // 생성일
 
-    @Column(name = "updated_at", nullable = false)
+    @Column(name = "updated_at")
     @Temporal(TemporalType.TIMESTAMP)
     @UpdateTimestamp
     private Date updatedAt; // 수정일
@@ -47,6 +49,7 @@ public class Project {
     @Column(name = "is_active")
     private String isActive;
 
+    @JsonIgnoreProperties({"hibernateLazyInitializer"})
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "group_id")
     private Group group;
