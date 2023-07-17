@@ -65,7 +65,6 @@ public class IssueService {
                     .memberReport(memberReportInfoDTO)
                     .importance(issue.getImportance())
 
-
                     .build();
 
             issueDTOList.add(issueDTO);
@@ -140,6 +139,9 @@ public class IssueService {
 
     public List<IssueDTO> getAllIssuesByReleaseNoteId(Long releaseNoteId) {
         List<Issue> allIssuesByReleaseNoteId = issueRepository.findAllByReleaseNoteId(releaseNoteId);
+        if (allIssuesByReleaseNoteId == null || allIssuesByReleaseNoteId.isEmpty()) {
+            throw new NoSuchElementException("릴리즈 노트에 포함된 이슈가 없습니다.");
+        }
         List<IssueDTO> issueDTOList = allIssuesByReleaseNoteId.stream().map(issue -> IssueDTO.builder()
                 .id(issue.getId())
                 .issueNum(issue.getIssueNum())
@@ -170,7 +172,7 @@ public class IssueService {
     public List<IssueDTO> findAllByNotReleaseNoteId(Long projectId){
         List<Issue> allByNotReleaseNoteId = issueRepository.findAllByNotReleaseNoteId(projectId);
         if (allByNotReleaseNoteId == null || allByNotReleaseNoteId.isEmpty()) {
-            throw new NullPointerException("릴리즈 노트에 포함되지 않은 이슈가 없습니다.");
+            throw new NoSuchElementException("릴리즈 노트에 포함되지 않은 이슈가 없습니다.");
         }
         List<IssueDTO> issueDTOList = allByNotReleaseNoteId.stream().map(issue -> IssueDTO.builder()
                 .id(issue.getId())
