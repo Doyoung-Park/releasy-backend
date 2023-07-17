@@ -16,7 +16,7 @@ import org.springframework.stereotype.Component;
 public class ResponseMessage {
 
     @NotNull
-    private Integer statusCode;
+    private int statusCode;
 
     @NotNull
     private String message;
