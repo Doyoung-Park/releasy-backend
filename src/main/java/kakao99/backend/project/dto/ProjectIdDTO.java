@@ -21,8 +21,6 @@ public class ProjectIdDTO {
 
     private String status;
 
-    private String role;
-
     private Date createAt;
 
     private String groupName;

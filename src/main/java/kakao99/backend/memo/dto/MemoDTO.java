@@ -11,7 +11,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Builder
-public class memoDTO {
+public class MemoDTO {
 
 
     private Long id;
@@ -33,11 +33,11 @@ public class memoDTO {
 
     private Date updatedAt;
 
-    public static memoDTO MemoDTO(Long memoId, Long issueId, String memberNickname
+    public static MemoDTO MemoDTO(Long memoId, Long issueId, String memberNickname
                             ,String memoContent,Date createdAt,Date updatedAt ) {
 
 
-        return memoDTO.builder()
+        return MemoDTO.builder()
                 .id(memoId)
                 .issueId(issueId)
                 .memberNickname(memberNickname)

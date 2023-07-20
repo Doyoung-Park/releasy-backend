@@ -3,7 +3,7 @@ package kakao99.backend.memo.controller;
 import kakao99.backend.memo.dto.CreateMemoDTO;
 import kakao99.backend.memo.dto.MemoCreationResponseDTO;
 import kakao99.backend.memo.dto.UpdateMemoDTO;
-import kakao99.backend.memo.dto.memoDTO;
+import kakao99.backend.memo.dto.MemoDTO;
 import kakao99.backend.memo.service.MemoService;
 import kakao99.backend.common.ResponseMessage;
 import lombok.RequiredArgsConstructor;
@@ -26,7 +26,7 @@ public class MemoController {
     @GetMapping("/api/memo/{projectId}/{issueId}")
     public ResponseEntity<?> getMemo(@PathVariable Long issueId)
     {
-        List<memoDTO> memo = memoService.getAllMemo(issueId);
+        List<MemoDTO> memo = memoService.getAllMemo(issueId);
 
         System.out.println("memo" + memo);
 

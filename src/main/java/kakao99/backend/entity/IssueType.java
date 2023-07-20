@@ -1,4 +1,4 @@
-package kakao99.backend.issue.repository;
+package kakao99.backend.entity;
 
 public enum IssueType {
     TASK, BUG, STORY;

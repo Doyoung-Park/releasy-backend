@@ -1,8 +1,8 @@
 package kakao99.backend.memo.service;
 
 import kakao99.backend.memo.dto.MemoCreationResponseDTO;
+import kakao99.backend.memo.dto.MemoDTO;
 import kakao99.backend.memo.dto.UpdateMemoDTO;
-import kakao99.backend.memo.dto.memoDTO;
 import kakao99.backend.entity.Issue;
 import kakao99.backend.entity.Member;
 import kakao99.backend.entity.Memo;
@@ -49,12 +49,12 @@ public class MemoService {
         return response;
     }
 
-    public List<memoDTO>  getAllMemo(Long issueId){
+    public List<MemoDTO>  getAllMemo(Long issueId){
         List<Memo> memos = memoRepository.findByIssueIdAndIsActiveTrue(issueId);
 
-        List<memoDTO> MemoDTOList = new ArrayList<>();
+        List<MemoDTO> MemoDTOList = new ArrayList<>();
         for (Memo memo : memos) {
-            memoDTO memodto = memoDTO.MemoDTO(memo.getId()  ,memo.getIssue().getId(),memo.getMember().getNickname()
+            MemoDTO memodto = MemoDTO.MemoDTO(memo.getId()  ,memo.getIssue().getId(),memo.getMember().getNickname()
                     ,memo.getMemo_content() ,memo.getCreatedAt() ,memo.getUpdatedAt());
 
             MemoDTOList.add(memodto);

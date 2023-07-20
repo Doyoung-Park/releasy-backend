@@ -18,13 +18,8 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface IssueRepository extends JpaRepository<Issue, Long> {
+public interface IssueRepository extends JpaRepository<Issue, Long>, IssueRepositoryCustom {
     Issue save(Issue issue);
-
-//    Issue findByProjectIdAndIssueId(Long projectId, Long issueId);
-
-//    @Query("select m from Issue m join fetch m.project")
-//    List<Issue> findAllByProjectId(Long projectId);
 
     @Query("select m from Issue m join fetch m.project join fetch m.memberInCharge join fetch m.memberReport where m.project.id=:projectId and m.isActive = true")
     List<Issue> findAllByProjectId(@Param("projectId") Long projectId);
@@ -35,6 +30,15 @@ public interface IssueRepository extends JpaRepository<Issue, Long> {
 
     @Query("select m from Issue m join fetch m.project join fetch m.memberInCharge where m.project.id=:projectId and m.issueType = :issueType and m.isActive = true")
     List<Issue> findAllByType(@Param("projectId") Long projectId, @Param("issueType") String type);
+
+
+    @Query("select m from Issue m join fetch m.project join fetch m.memberInCharge where m.project.id=:projectId and m.status = :status and m.issueType = :issueType and m.isActive = true")
+    List<Issue> findAllByStatusAndType(@Param("projectId") Long projectId, @Param("status") String status,@Param("issueType") String type);
+
+
+    @Query("select m from Issue m join fetch m.project join fetch m.memberInCharge where m.project.id=:projectId and m.status = :status and m.issueType = :issueType and m.memberInCharge.username = :username and m.isActive = true")
+    List<Issue> findAllByStatusAndTypeAndUsername(@Param("projectId") Long projectId, @Param("status") String status,@Param("issueType") String type,@Param("username") String username);
+
 
     @Modifying
     @Transactional
@@ -80,7 +84,7 @@ public interface IssueRepository extends JpaRepository<Issue, Long> {
 
     // 프로젝트 내의 releaseNote에 포함되지 않은 이슈들 조회
 @   Query("select m from Issue m join fetch m.memberInCharge join fetch m.memberReport where m.releaseNote.id = null and m.isActive = true and m.project.id =:projectId")
-List<Issue> findAllByNotReleaseNoteId(@Param("projectId") Long projectId);
+    List<Issue> findAllByNotReleaseNoteId(@Param("projectId") Long projectId);
 
     @Modifying
     @Transactional
@@ -91,7 +95,6 @@ List<Issue> findAllByNotReleaseNoteId(@Param("projectId") Long projectId);
     @Transactional
     @Query("UPDATE Issue m SET m.releaseNote.id =:releaseNoteId  where m.id =:issueId")
     int insertIssueFromReleaseNote(@Param("releaseNoteId") Long releaseNoteId, @Param("issueId") Long issueId);
-
 
 
 }

@@ -49,6 +49,7 @@ public class ProjectController {
         return projectService.removeProject(projectModifyDTO, member.getId());
     }
 
+    //프로젝트 정보 조회
     @GetMapping("/api/project/{projectId}")
     public ResponseEntity<?> getProjectInfo(@PathVariable("projectId") Long projectId, Authentication authentication) {
         Member member = (Member) authentication.getPrincipal();
@@ -56,6 +57,7 @@ public class ProjectController {
         return projectService.getProject(projectId, member.getId());
     }
 
+    //현재 프로젝트 권한 조회
     @GetMapping("/api/role/{projectId}")
     public ResponseEntity<?> getRole(@PathVariable("projectId") Long projectId, Authentication authentication) throws Exception {
         Member member = (Member) authentication.getPrincipal();
@@ -65,11 +67,11 @@ public class ProjectController {
             return new ResponseEntity(message, HttpStatus.OK);
         }catch (Exception e){
             ResponseMessage message = new ResponseMessage(404, "해당 id로 찾은 role 데이터 없음.");
-
             return new ResponseEntity<>(message, HttpStatus.NOT_FOUND);
         }
     }
 
+    //내가 속한 프로젝트 조회
     @GetMapping("/api/myProject")
     public ResponseEntity<?> getMyProject(Authentication authentication){
         Member member = (Member) authentication.getPrincipal();

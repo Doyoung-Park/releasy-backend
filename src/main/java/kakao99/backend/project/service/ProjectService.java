@@ -6,6 +6,7 @@ import kakao99.backend.entity.Member;
 import kakao99.backend.entity.MemberProject;
 import kakao99.backend.entity.Project;
 import kakao99.backend.group.repository.GroupRepository;
+import kakao99.backend.issue.dto.ProjectWithIssuesDTO;
 import kakao99.backend.project.dto.ProjectDTO;
 import kakao99.backend.project.dto.ProjectIdDTO;
 import kakao99.backend.project.dto.ProjectModifyDTO;
@@ -13,15 +14,21 @@ import kakao99.backend.project.dto.ProjectPMDTO;
 import kakao99.backend.project.repository.MemberProjectRepository;
 import kakao99.backend.project.repository.ProjectRepository;
 import kakao99.backend.common.ResponseMessage;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.*;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class ProjectService {
 
     private final ProjectRepository projectRepository;
@@ -29,11 +36,11 @@ public class ProjectService {
     private final MemberProjectRepository memberProjectRepository;
 
     @Transactional
-    public ResponseEntity<?> saveProject(ProjectDTO projectDTO, Member member){
+    public ResponseEntity<?> saveProject(ProjectDTO projectDTO, Member member) {
         Optional<Group> optionalGroup = groupRepository.findById(member.getGroup().getId());
         Group group = optionalGroup.get();
 
-        Project project =Project.builder()
+        Project project = Project.builder()
                 .name(projectDTO.getName())
                 .description(projectDTO.getDescription())
                 .status(projectDTO.getStatus())
@@ -59,13 +66,12 @@ public class ProjectService {
 
 
     @Transactional
-    public ResponseEntity<?> updateProject(ProjectModifyDTO projectModifyDTO){
+    public ResponseEntity<?> updateProject(ProjectModifyDTO projectModifyDTO) {
         try {
             Optional<Project> optionalProject = projectRepository.findById(projectModifyDTO.getId());
             Project project = optionalProject.get();
             project.updateProject(projectModifyDTO);
-        }
-        catch(Exception e){
+        } catch (Exception e) {
             ResponseMessage message = new ResponseMessage(200, "프로젝트 수정 실패");
 
             return new ResponseEntity<>(message, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -74,67 +80,73 @@ public class ProjectService {
         ResponseMessage message = new ResponseMessage(200, "프로젝트 수정 성공");
         return new ResponseEntity<>(message, HttpStatus.OK);
     }
+
     @Transactional
-    public ResponseEntity<?> removeProject(ProjectModifyDTO projectModifyDTO, Long memberId){
+    public ResponseEntity<?> removeProject(ProjectModifyDTO projectModifyDTO, Long memberId) {
         Optional<Project> optionalProject = projectRepository.findById(projectModifyDTO.getId());
         System.out.println(projectModifyDTO.getId());
-        if(optionalProject.isEmpty()) {
+        if (optionalProject.isEmpty()) {
             ResponseMessage message = new ResponseMessage(500, "id로 삭제할 프로젝트 확인 실패");
 
             return new ResponseEntity<>(message, HttpStatus.INTERNAL_SERVER_ERROR);
         }
         Project project = optionalProject.get();
         Optional<String> opRole = memberProjectRepository.role(project.getId(), memberId);
-        if(opRole.isEmpty()){
+        if (opRole.isEmpty()) {
             ResponseMessage message = new ResponseMessage(500, "id로 찾은 role 확인 실패");
 
             return new ResponseEntity<>(message, HttpStatus.INTERNAL_SERVER_ERROR);
         }
         String role = opRole.get();
         System.out.println(role);
-        if(role.equals("PM")) {
+        if (role.equals("PM")) {
             memberProjectRepository.deleteMemberProjectByProjectId(projectModifyDTO.getId());
             project.deleteProject();
             ResponseMessage message = new ResponseMessage(200, "프로젝트 삭제 성공");
             return new ResponseEntity<>(message, HttpStatus.OK);
-        }else{
+        } else {
             ResponseMessage message = new ResponseMessage(200, "프로젝트 삭제 권한이 없습니다.");
             return new ResponseEntity<>(message, HttpStatus.OK);
         }
     }
 
     @Transactional
-    public ResponseEntity<?> getProject(Long projectId, Long memberId){
+    public ResponseEntity<?> getProject(Long projectId, Long memberId) {
         Optional<Project> optionalProject = projectRepository.findById(projectId);
-        if(optionalProject.isEmpty()) {
-                ResponseMessage message = new ResponseMessage(500, "id로 삭제할 프로젝트 확인 실패");
-                return new ResponseEntity<>(message, HttpStatus.INTERNAL_SERVER_ERROR);
+        if (optionalProject.isEmpty()) {
+
+            ResponseMessage message = new ResponseMessage(500, "id로 삭제할 프로젝트 확인 실패");
+            return new ResponseEntity<>(message, HttpStatus.INTERNAL_SERVER_ERROR);
         }
         Optional<String> opRole = memberProjectRepository.role(projectId, memberId);
-        if(opRole.isEmpty()){
+        if (opRole.isEmpty()) {
             ResponseMessage message = new ResponseMessage(500, "role id 찾을 수 없음");
             return new ResponseEntity<>(message, HttpStatus.INTERNAL_SERVER_ERROR);
         }
         String role = opRole.get();
+        System.out.println(role);
+        if(!"PM".equals(role)){
+            System.out.println("111");
+            ResponseMessage message = new ResponseMessage(401, "PM 권한만 가능한 동작입니다.");
+            return new ResponseEntity<>(message, HttpStatus.UNAUTHORIZED);
+        }
         Project project = optionalProject.get();
         ProjectIdDTO projectIdDTO = ProjectIdDTO.builder()
                 .id(project.getId())
                 .groupName(project.getGroup().getName())
                 .groupCode(project.getGroup().getCode())
                 .name(project.getName())
-                .role(role)
                 .status(project.getStatus())
                 .description(project.getDescription())
                 .createAt(project.getCreatedAt())
                 .build();
-        System.out.println(projectIdDTO.getRole());
         ResponseMessage message = new ResponseMessage(200, "프로젝트 정보 조회 성공", projectIdDTO);
         return new ResponseEntity<>(message, HttpStatus.OK);
     }
 
     public String findRole(long projectId, long memberId) throws Exception {
         Optional<String> opRole = memberProjectRepository.role(projectId, memberId);
-        if(opRole.isEmpty()){
+        if (opRole.isEmpty()) {
             throw new Exception("role id 찾을 수 없음");
         }
         return opRole.get();
@@ -146,7 +158,7 @@ public class ProjectService {
         for (Project project : projects) {
             System.out.println(project.getId());
             Optional<Member> optionalMember = memberProjectRepository.findPMByProjectId(project.getId(), "PM");
-            if(optionalMember.isEmpty()){
+            if (optionalMember.isEmpty()) {
                 throw new Exception("PM이 없음");
             }
             Member pmMember = optionalMember.get();
@@ -166,6 +178,20 @@ public class ProjectService {
         }
 
         return projectPMDTOS;
+    }
+
+    public ProjectWithIssuesDTO getProjectIdAndName(@PathVariable("projectId") Long projectId) {
+        log.info("projectId로 조회");
+        Optional<Project> optionalProject = projectRepository.findById(projectId);
+        if (optionalProject.isEmpty()) {
+            throw new NoSuchElementException(projectId + "번에 해당하는 프로젝트 데이터가 없습니다.");
+        }
+        Project project = optionalProject.get();
+        ProjectWithIssuesDTO projectWithProjectIdAndName = new ProjectWithIssuesDTO().saveProjectIdAndName(project);
+
+
+//        System.out.println("projectWithProjectIdAndName = " + projectWithProjectIdAndName);
+        return projectWithProjectIdAndName;
     }
 
 }

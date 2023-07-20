@@ -1,25 +1,28 @@
 package kakao99.backend.issue.repository;
 
 import com.querydsl.core.types.Projections;
+import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import com.querydsl.jpa.impl.JPAUpdateClause;
 import jakarta.persistence.EntityManager;
+import jakarta.transaction.Transactional;
+import kakao99.backend.common.exception.CustomException;
+import kakao99.backend.common.exception.ErrorCode;
 import kakao99.backend.entity.*;
+import kakao99.backend.issue.controller.UpdateIssueForm;
 import kakao99.backend.issue.dto.IssueDTO;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
 @Repository
-public class IssueRepositoryImpl {
+@RequiredArgsConstructor
+public class IssueRepositoryImpl implements IssueRepositoryCustom {
 
     private final EntityManager em;
 
     private final JPAQueryFactory query;
-
-    public IssueRepositoryImpl(EntityManager em) {
-        this.em = em;
-        this.query = new JPAQueryFactory(em);
-    }
 
     private QIssue issue = QIssue.issue;
     private QProject project = QProject.project;
@@ -28,42 +31,50 @@ public class IssueRepositoryImpl {
 
     private QMember member = QMember.member;
 
-//    @Query("select m from Issue m join fetch m.project join fetch m.memberInCharge where m.project.id=:projectId and m.isActive = true")
-//    List<Issue> findAllByProjectId(@Param("projectId") Long projectId);
+    public List<Issue> findAllWithFilter(Long projectId, String status, String type, String username) {
+        JPAQuery<Issue> query = this.query.selectFrom(issue)
+                .where(issue.project.id.eq(projectId).and(issue.isActive.eq(true)));
 
-//    public List<?> findAllByProjectIdImpl(Long projectId) {
-//        return query.select(Projections.bean(IssueDTO.class, issue.id, issue.issueNum, issue.title,
-//                        issue.issueType, issue.description, issue.status, issue.listPosition,
-//                        issue.file, issue.createdAt, issue.memberInCharge))
-//                .from(issue)
-//                .innerJoin(issue.project, project)
-//                .where(issue.project.id.eq(projectId).and(issue.isActive.eq(true)))
-//                .stream().toList();
-//
-////
-////        IssueDTO.class, issue.title, issue.issueNum))
-////                .from(issue)
-////                .innerJoin(issue.project, project)
-////                .where(issue.project.id.eq(projectId).and(issue.isActive.eq(true)))
-////                .stream().forEach();
-//    }
+        if (status != null) {
+            query.where(issue.status.eq(status));
+        }
 
-//    public List<?> findAllByProjectIdImpl(Long projectId) {
-//
-//        return query.select(new QIssueDTO(issue.id, issue.issueNum, issue.title,
-//                        issue.issueType, issue.description, issue.status, issue.listPosition,
-//                        issue.file, issue.createdAt, ))
-//                .from(issue)
-//                .innerJoin(issue.project, project)
-//                .innerJoin(issue.memberInCharge, member)
-//                .where(issue.project.id.eq(projectId).and(issue.isActive.eq(true)))
-//                .stream().toList();
+        if (type != null) {
+            query.where(issue.issueType.eq(type));
+        }
 
-//
-//        IssueDTO.class, issue.title, issue.issueNum))
-//                .from(issue)
-//                .innerJoin(issue.project, project)
-//                .where(issue.project.id.eq(projectId).and(issue.isActive.eq(true)))
-//                .stream().forEach();
-//    }
+        if (username != null) {
+            query.where(issue.memberInCharge.username.eq(username));
+        }
+
+        return query.fetch();
+    }
+
+    @Transactional
+    public void updateIssue(UpdateIssueForm updateIssueForm, Long issueId) {
+
+        JPAUpdateClause query = this.query.update(issue)
+                .where(issue.id.eq(issueId).and(issue.isActive.eq(true)));
+
+        if(updateIssueForm.getTitle() != null){
+            query.set(issue.title, updateIssueForm.getTitle());
+        }
+
+        if (updateIssueForm.getDescription() != null) {
+            query.set(issue.description, updateIssueForm.getDescription());
+        }
+
+        if (updateIssueForm.getIssueType() != null) {
+            query.set(issue.issueType, updateIssueForm.getIssueType());
+        }
+
+        if (updateIssueForm.getStatus() != null) {
+            query.set(issue.status, updateIssueForm.getStatus());
+        }
+        if (updateIssueForm.getTitle()==null && updateIssueForm.getDescription()==null &&
+                updateIssueForm.getIssueType()==null && updateIssueForm.getStatus()==null) {
+            throw new CustomException(ErrorCode.INVALID_INPUT_VALUE);
+        }
+        query.execute();
+    }
 }

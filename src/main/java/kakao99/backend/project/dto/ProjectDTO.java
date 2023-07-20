@@ -18,5 +18,4 @@ public class ProjectDTO {
     private String status;
 
     private String role;
-
 }

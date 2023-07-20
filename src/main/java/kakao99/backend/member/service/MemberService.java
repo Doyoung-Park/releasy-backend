@@ -1,5 +1,6 @@
 package kakao99.backend.member.service;
 
+import kakao99.backend.common.exception.CustomException;
 import kakao99.backend.entity.Group;
 import kakao99.backend.entity.Member;
 import kakao99.backend.entity.Project;
@@ -34,13 +35,12 @@ public class MemberService {
     private final MemberProjectRepository memberProjectRepository;
 
     @Transactional
-    public ResponseEntity<?> create(RegisterDTO registerDTO) {
+    public Long create(RegisterDTO registerDTO) {
 
         Optional<Member> findEmailMember = memberRepository.findByEmail(registerDTO.getEmail());
 
         if (findEmailMember.isPresent()) {
-            ResponseMessage message = new ResponseMessage(400, "이미 가입된 이메일 입니다.");
-            return new ResponseEntity<>(message, HttpStatus.OK);
+            throw new CustomException(404,"이미 가입된 이메일이 존재 합니다.");
         }
 
         Group group = Group.builder()
@@ -63,18 +63,16 @@ public class MemberService {
                 .isActive(true)
                 .build();
 
-        memberRepository.save(member);
-        ResponseMessage message = new ResponseMessage(200,"회원가입이 완료 되었습니다.");
-        return new ResponseEntity<>(message,HttpStatus.OK);
+        Member savedMember = memberRepository.save(member);
+        return savedMember.getId();
     }
 
     @Transactional
-    public ResponseEntity<?> join(RegisterDTO registerDTO) {
+    public Long join(RegisterDTO registerDTO) {
         Optional<Group> byCode = groupRepository.findByCode(registerDTO.getGroupName());
 
         if (byCode.isEmpty()) {
-            ResponseMessage message = new ResponseMessage(404, "그룹이 존재하지 않습니다.");
-            return new ResponseEntity<>(message,HttpStatus.OK);
+            throw new CustomException(404, "그룹이 존재하지 않습니다.");
         }
 
         Group group = byCode.get();
@@ -92,49 +90,46 @@ public class MemberService {
                 .isActive(true)
                 .build();
 
-        memberRepository.save(member);
-
-        ResponseMessage message = new ResponseMessage(200,"회원가입이 완료 되었습니다.");
-
-        return new ResponseEntity<>(message,HttpStatus.OK);
+        Member savedMember = memberRepository.save(member);
+        return savedMember.getId();
     }
 
     @Transactional(readOnly = true)
-    public ResponseEntity<?> login(LoginDTO loginDTO) {
+    public String login(LoginDTO loginDTO) {
 
         Optional<Member> byEmail = memberRepository.findByEmail(loginDTO.getEmail());
 
         if (byEmail.isEmpty()) {
-            ResponseMessage message = new ResponseMessage(404, "존재하지 않는 이메일 입니다.");
-            return new ResponseEntity<>(message, HttpStatus.NOT_FOUND);
+            //ResponseMessage message = new ResponseMessage(404, "존재하지 않는 이메일 입니다.");
+            throw new CustomException(404, "존재하지 않는 이메일입니다.");
         }
 
         Member member = byEmail.get();
 
         if (!checkPassword(loginDTO.getPassword(), member.getPassword())) {
-            ResponseMessage message = new ResponseMessage(400, "비밀번호가 일치 하지 않습니다.");
-            return new ResponseEntity<>(message, HttpStatus.BAD_REQUEST);
+            //ResponseMessage message = new ResponseMessage(400, "비밀번호가 일치 하지 않습니다.");
+            throw new CustomException(400, "비밀번호가 일치하지 않습니다.");
         }
 
         String accessToken = tokenProvider.createAccessToken(member);
-        ResponseMessage message = new ResponseMessage(200, "로그인이 완료 되었습니다.", accessToken);
-        return new ResponseEntity<>(message, HttpStatus.OK);
+        //ResponseMessage message = new ResponseMessage(200, "로그인이 완료 되었습니다.", accessToken);
+        return accessToken;
     }
 
     @Transactional
-    public ResponseEntity<?> getMemberInfo(Long memberId) {
+    public MemberInfoDTO getMemberInfo(Long memberId) {
         Optional<Member> byId = memberRepository.findById(memberId);
 
         if (byId.isEmpty()) {
-            ResponseMessage message = new ResponseMessage(404, "회원 정보가 존재하지 않습니다.");
-            return new ResponseEntity<>(message,HttpStatus.OK);
+            //ResponseMessage message = new ResponseMessage(404, "회원 정보가 존재하지 않습니다.");
+            throw new CustomException(404, "회원정보가 존재하지 않습니다.");
         }
 
         Member member = byId.get();
 
         List<Project> projectList = memberProjectRepository.findProjectByMemberId(memberId, "true");
 
-        MemberInfoDTO memberInfoDTO = MemberInfoDTO.builder()
+        return MemberInfoDTO.builder()
                 .name(member.getUsername())
                 .nickname(member.getNickname())
                 .email(member.getEmail())
@@ -143,9 +138,6 @@ public class MemberService {
                 .introduce(member.getIntroduce())
                 .projectList(projectList)
                 .build();
-
-        ResponseMessage message = new ResponseMessage(200, "회원 정보 조회 완료", memberInfoDTO);
-        return new ResponseEntity<>(message, HttpStatus.OK);
     }
 
     Boolean checkPassword(String rawPassword, String encodePassword) {

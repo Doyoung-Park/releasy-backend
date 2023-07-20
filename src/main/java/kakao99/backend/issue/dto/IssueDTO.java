@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.querydsl.core.annotations.QueryProjection;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.ManyToOne;
+import kakao99.backend.entity.Issue;
 import kakao99.backend.entity.Member;
 import kakao99.backend.entity.Memo;
 
@@ -13,6 +14,8 @@ import lombok.*;
 import net.minidev.json.annotate.JsonIgnore;
 
 import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
 
 
 @Getter
@@ -28,8 +31,6 @@ public class IssueDTO {
     private String description;
     private String status;
     private Integer listPosition;
-
-
     private Integer importance;
     private String file;
     private Date createdAt;
@@ -37,29 +38,38 @@ public class IssueDTO {
     private String releasenote;
 
 
-////    @JsonIgnore
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     @JsonIgnore
-//    @ManyToOne(fetch = FetchType.LAZY)
     private MemberInfoDTO memberIdInCharge;
     private MemberInfoDTO memberReport;
-//    private Long memberIdReport;
-//    private List<Memo> comments;
 
 
-//@QueryProjection87
-//    public IssueDTO(Long id, Integer issueNum, String title, String issueType, String description, String status, Integer listPosition, String file, Date createdAt, MemberInfoDTO memberIdInCharge) {
-//        this.id = id;
-//        this.issueNum = issueNum;
-//        this.title = title;
-//        this.issueType = issueType;
-//        this.description = description;
-//        this.status = status;
-//        this.listPosition = listPosition;
-//        this.file = file;
-//        this.createdAt = createdAt;
-//    this.memberIdInCharge = memberIdInCharge;
-//    }
+    public static List<IssueDTO> getIssueDTOListFromIssueList(List<Issue> allByNotReleaseNoteId) {
+        List<IssueDTO> issueDTOList = allByNotReleaseNoteId.stream().map(issue -> IssueDTO.builder()
+                .id(issue.getId())
+                .issueNum(issue.getIssueNum())
+                .title(issue.getTitle())
+                .issueType(issue.getIssueType())
+                .description(issue.getDescription())
+                .status(issue.getStatus())
+                .file(issue.getFile())
+                .createdAt(issue.getCreatedAt())
+                .memberIdInCharge(MemberInfoDTO.builder()
+                        .name(issue.getMemberInCharge().getUsername())
+                        .nickname(issue.getMemberInCharge().getNickname())
+                        .email(issue.getMemberInCharge().getEmail())
+                        .position(issue.getMemberInCharge().getPosition())
+                        .build())
+                .memberReport(MemberInfoDTO.builder()
+                        .name(issue.getMemberReport().getUsername())
+                        .nickname(issue.getMemberReport().getNickname())
+                        .email(issue.getMemberReport().getEmail())
+                        .position(issue.getMemberReport().getPosition())
+                        .build())
+                .importance(issue.getImportance())
+                .build()).collect(Collectors.toList());
+        return issueDTOList;
+    }
 }
 
 
