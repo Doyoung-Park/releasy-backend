@@ -181,7 +181,7 @@ public class ProjectService {
     }
 
     public ProjectWithIssuesDTO getProjectIdAndName(@PathVariable("projectId") Long projectId) {
-        log.info("projectId로 조회");
+        log.info("projectId로 프로젝트 조회");
         Optional<Project> optionalProject = projectRepository.findById(projectId);
         if (optionalProject.isEmpty()) {
             throw new NoSuchElementException(projectId + "번에 해당하는 프로젝트 데이터가 없습니다.");

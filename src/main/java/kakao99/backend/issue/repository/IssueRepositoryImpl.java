@@ -10,6 +10,7 @@ import kakao99.backend.common.exception.CustomException;
 import kakao99.backend.common.exception.ErrorCode;
 import kakao99.backend.entity.*;
 import kakao99.backend.issue.controller.UpdateIssueForm;
+import kakao99.backend.issue.dto.DragNDropDTO;
 import kakao99.backend.issue.dto.IssueDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
@@ -77,4 +78,24 @@ public class IssueRepositoryImpl implements IssueRepositoryCustom {
         }
         query.execute();
     }
+
+    @Transactional
+    public void updateIssueByDragNDrop(DragNDropDTO dragNDropDTO) {
+        JPAUpdateClause query = this.query.update(issue)
+                .where(issue.id.eq(dragNDropDTO.getIssueId()).and(issue.isActive.eq(true)));
+
+        if (dragNDropDTO.getDestinationStatus() != null) {
+            query.set(issue.status, dragNDropDTO.getDestinationStatus());
+        }
+
+        if (dragNDropDTO.getSourceStatus() != null) {
+            query.set(issue.status, dragNDropDTO.getDestinationStatus());
+        }
+
+        if(dragNDropDTO.getDestinationStatus() == null && dragNDropDTO.getSourceStatus() == null){
+            throw new CustomException(ErrorCode.INVALID_INPUT_VALUE);
+        }
+        query.execute();
+    }
+
 }
