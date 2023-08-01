@@ -1,6 +1,7 @@
 package kakao99.backend.project.service;
 
 import jakarta.transaction.Transactional;
+import kakao99.backend.common.exception.CustomException;
 import kakao99.backend.entity.Member;
 import kakao99.backend.entity.MemberProject;
 import kakao99.backend.entity.Project;
@@ -26,6 +27,7 @@ public class MemberProjectService {
     private final MemberProjectRepository memberProjectRepository;
     private final MemberRepository memberRepository;
 
+    @Transactional
     public ResponseEntity<?> join(MemberProjectDTO memberProjectDTO) {
 
         Optional<Project> optionalProject = projectRepository.findById(memberProjectDTO.getProjectId());
@@ -39,7 +41,7 @@ public class MemberProjectService {
                 .project(project)
                 .member(member)
                 .isActive("true")
-                .role("slave")
+                .role("Member")
                 .build();
 
         memberProjectRepository.save(memberProject);
@@ -52,6 +54,21 @@ public class MemberProjectService {
         MemberProject memberProject =(MemberProject) optionalMemberProject.get();
         memberProject.deleteMember();
         ResponseMessage message = new ResponseMessage(200, "프로젝트에서 멤버 삭제 완료");
+        return new ResponseEntity<>(message, HttpStatus.OK);
+    }
+
+    @Transactional
+    public ResponseEntity<?> handOverPm(MemberProjectDTO memberProjectDTO, Long memberId) {
+
+        Optional<MemberProject> allByProjectIdAndMemberId = memberProjectRepository.findAllByProjectIdAndMemberId(memberProjectDTO.getProjectId(), memberId);
+        if (allByProjectIdAndMemberId.isEmpty()) {
+            throw new CustomException(404, "PM이 존재하지 않습니다.");
+        }
+
+        memberProjectRepository.updateRole(memberId, memberProjectDTO.getMemberId(), memberProjectDTO.getProjectId());
+
+        ResponseMessage message = new ResponseMessage(200, "PM 권한이 양도 되었습니다.");
+
         return new ResponseEntity<>(message, HttpStatus.OK);
     }
 

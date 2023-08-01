@@ -22,6 +22,8 @@ public class QIssue extends EntityPathBase<Issue> {
 
     public static final QIssue issue = new QIssue("issue");
 
+    public final ListPath<IssueParentChild, QIssueParentChild> childIssues = this.<IssueParentChild, QIssueParentChild>createList("childIssues", IssueParentChild.class, QIssueParentChild.class, PathInits.DIRECT2);
+
     public final DateTimePath<java.util.Date> createdAt = createDateTime("createdAt", java.util.Date.class);
 
     public final DateTimePath<java.util.Date> deletedAt = createDateTime("deletedAt", java.util.Date.class);
@@ -45,6 +47,8 @@ public class QIssue extends EntityPathBase<Issue> {
     public final QMember memberInCharge;
 
     public final QMember memberReport;
+
+    public final ListPath<IssueParentChild, QIssueParentChild> parentIssues = this.<IssueParentChild, QIssueParentChild>createList("parentIssues", IssueParentChild.class, QIssueParentChild.class, PathInits.DIRECT2);
 
     public final QProject project;
 

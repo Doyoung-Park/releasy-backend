@@ -10,4 +10,5 @@ public class DragNDropDTO {
     private Long issueId;
     private String destinationStatus;
     private String sourceStatus;
+    private Integer listPosition;
 }

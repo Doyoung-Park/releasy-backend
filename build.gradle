@@ -68,7 +68,11 @@ dependencies {
     // response message 객체 생성 시 null인 필드 생략
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.12.3'
 
+    // list to json으로 변환
+    implementation 'com.google.code.gson:gson:2.8.8'
 
+    // RabbitMQ
+    implementation 'org.springframework.boot:spring-boot-starter-amqp'
 }
 
 tasks.named('test') {

@@ -19,6 +19,7 @@ public class MemoDTO {
 
     private Long issueId;
 
+
     private String memo_content;
 
     private String memberNickname;

@@ -2,23 +2,31 @@ package kakao99.backend.project.controller;
 
 import kakao99.backend.entity.Member;
 import kakao99.backend.entity.Project;
+
+
 import kakao99.backend.project.dto.ProjectDTO;
 import kakao99.backend.project.dto.ProjectModifyDTO;
 import kakao99.backend.project.dto.ProjectPMDTO;
+
+import kakao99.backend.project.dto.*;
+
 import kakao99.backend.project.repository.MemberProjectRepository;
 import kakao99.backend.project.repository.ProjectRepository;
 import kakao99.backend.project.service.ProjectService;
 import kakao99.backend.common.ResponseMessage;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
+@Slf4j
 public class ProjectController {
 
     private final ProjectService projectService;
@@ -45,6 +53,9 @@ public class ProjectController {
 
     @DeleteMapping("/api/project")
     public ResponseEntity<?> removeProject(@RequestBody ProjectModifyDTO projectModifyDTO,Authentication authentication){
+
+        log.info("프로젝트 삭제 컨트롤러 진입");
+
         Member member = (Member) authentication.getPrincipal();
         return projectService.removeProject(projectModifyDTO, member.getId());
     }
@@ -90,6 +101,29 @@ public class ProjectController {
 
         return new ResponseEntity(message, HttpStatus.OK);
     }
+
+    @GetMapping("api/project/{projectId}/members/{memberId}")
+    public ResponseEntity<?> getMembersProject(@PathVariable("projectId") Long projectId,@PathVariable("memberId") Long memberId) {
+
+
+        List<ProjectMemberDTO> projectDTOS = projectService.findMemberProject(memberId);
+        ResponseMessage message = new ResponseMessage(200, "내가 속한 프로젝트 목록 조회 완료", projectDTOS);
+
+        return new ResponseEntity(message, HttpStatus.OK);
+    }
+
+    // Members' info 창에서 project이름 가져오기
+    @GetMapping("api/project/{projectId}/name")
+    public ResponseEntity<?> getProjectName(@PathVariable("projectId") Long projectId) {
+        Optional<Project> project = projectRepository.findById(projectId);
+        ProjectNameDTO projectNameDTO = projectService.makeProjectNameDTO(project.get());
+
+        ResponseMessage message = new ResponseMessage(200, "프로젝트 이름 조회 완료", projectNameDTO);
+
+        return new ResponseEntity(message, HttpStatus.OK);
+    }
+
+
 
 
     //  내가 속한 그룹에서 내가 포함되지 않은 프로젝트 조회해오기

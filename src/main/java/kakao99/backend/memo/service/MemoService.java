@@ -51,7 +51,6 @@ public class MemoService {
 
     public List<MemoDTO>  getAllMemo(Long issueId){
         List<Memo> memos = memoRepository.findByIssueIdAndIsActiveTrue(issueId);
-
         List<MemoDTO> MemoDTOList = new ArrayList<>();
         for (Memo memo : memos) {
             MemoDTO memodto = MemoDTO.MemoDTO(memo.getId()  ,memo.getIssue().getId(),memo.getMember().getNickname()

@@ -1,12 +1,14 @@
 package kakao99.backend.project.dto;
 
 import kakao99.backend.entity.Group;
+import kakao99.backend.issue.dto.MemberInfoDTO;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.Date;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -26,4 +28,6 @@ public class ProjectIdDTO {
     private String groupName;
 
     private String groupCode;
+
+    private List<MemberInfoDTO> memberInfoDTOList;
 }

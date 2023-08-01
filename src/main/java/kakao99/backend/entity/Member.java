@@ -74,6 +74,9 @@ public class Member {
     @Column(name = "is_active")
     private Boolean isActive; // false: 탈퇴한 회원, true: 탈퇴x 회원도
 
+    @Column(name = "exp")
+    private Long exp;
+
 
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
@@ -96,6 +99,18 @@ public class Member {
         this.nickname = nickname;
         this.introduce = introduce;
         this.position = position;
+        return this;
+    }
+
+    public Member deleteGroupMember() {
+        this.group = null;
+        this.authority= null;
+        return this;
+    }
+
+    public Member updateGroup(Group group, String authority) {
+        this.group = group;
+        this.authority= authority;
         return this;
     }
 }

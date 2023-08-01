@@ -3,13 +3,11 @@ package kakao99.backend.member.service;
 import kakao99.backend.common.exception.CustomException;
 import kakao99.backend.entity.Group;
 import kakao99.backend.entity.Member;
+import kakao99.backend.entity.MemberProject;
 import kakao99.backend.entity.Project;
 import kakao99.backend.group.repository.GroupRepository;
 import kakao99.backend.jwt.TokenProvider;
-import kakao99.backend.member.dto.LoginDTO;
-import kakao99.backend.member.dto.MemberInfoDTO;
-import kakao99.backend.member.dto.MemberUpdateDTO;
-import kakao99.backend.member.dto.RegisterDTO;
+import kakao99.backend.member.dto.*;
 import kakao99.backend.member.repository.MemberRepository;
 import kakao99.backend.project.repository.MemberProjectRepository;
 import kakao99.backend.common.ResponseMessage;
@@ -61,10 +59,29 @@ public class MemberService {
                 .position(registerDTO.getPosition())
                 .group(group)
                 .isActive(true)
+                .exp(0L)
                 .build();
 
         Member savedMember = memberRepository.save(member);
         return savedMember.getId();
+    }
+
+    //그룹에서 삭제당하고 다시 그룹을 만들 때
+    @Transactional
+    public void createRejoin(ReJoinDTO reJoinDTO) {
+        Optional<Member> findEmailMember = memberRepository.findByEmail(reJoinDTO.getEmail());
+        if (findEmailMember.isEmpty()) {
+            throw new CustomException(404, "멤버가 존재하지 않습니다.");
+        }
+        Member member = findEmailMember.get();
+        Group group = Group.builder()
+                .name(reJoinDTO.getGroupName())
+                .createdAt(new Date())
+                .isActive("true")
+                .code(UUID.randomUUID().toString())
+                .build();
+
+        member.updateGroup(group, "GM");
     }
 
     @Transactional
@@ -88,10 +105,28 @@ public class MemberService {
                 .position(registerDTO.getPosition())
                 .group(group)
                 .isActive(true)
+                .exp(0L)
                 .build();
 
         Member savedMember = memberRepository.save(member);
         return savedMember.getId();
+    }
+
+
+    @Transactional
+    public void rejoin(ReJoinDTO reJoinDTD) {
+        Optional<Group> byCode = groupRepository.findByCode(reJoinDTD.getGroupName());
+        if (byCode.isEmpty()) {
+            throw new CustomException(404, "그룹이 존재하지 않습니다.");
+        }
+        Optional<Member> findEmailMember = memberRepository.findByEmail(reJoinDTD.getEmail());
+        if (findEmailMember.isEmpty()) {
+            throw new CustomException(404, "멤버가 존재하지 않습니다.");
+        }
+        Group group = byCode.get();
+        Member member = findEmailMember.get();
+
+        member.updateGroup(group, "Slave");
     }
 
     @Transactional(readOnly = true)
@@ -109,6 +144,11 @@ public class MemberService {
         if (!checkPassword(loginDTO.getPassword(), member.getPassword())) {
             //ResponseMessage message = new ResponseMessage(400, "비밀번호가 일치 하지 않습니다.");
             throw new CustomException(400, "비밀번호가 일치하지 않습니다.");
+        }
+
+        if (member.getGroup() == null) {
+            //ResponseMessage message = new ResponseMessage(400, "비밀번호가 일치 하지 않습니다.");
+            throw new CustomException(401, "그룹이 존재하지 않습니다.");
         }
 
         String accessToken = tokenProvider.createAccessToken(member);
@@ -136,7 +176,52 @@ public class MemberService {
                 .groupName(member.getGroup().getName())
                 .position(member.getPosition())
                 .introduce(member.getIntroduce())
+                .groupCode(member.getGroup().getCode())
                 .projectList(projectList)
+                .exp(member.getExp())
+                .build();
+    }
+
+    @Transactional
+    public MemberGroupDTO getMemberInfoWithGroupMember(Long memberId) {
+        Optional<Member> byId = memberRepository.findById(memberId);
+
+        if (byId.isEmpty()) {
+            //ResponseMessage message = new ResponseMessage(404, "회원 정보가 존재하지 않습니다.");
+            throw new CustomException(404, "회원정보가 존재하지 않습니다.");
+        }
+
+        Member member = byId.get();
+        List<Member> groupMemberList = memberRepository.findByGroupIdAndIsActiveTrue(member.getGroup().getId());
+        if (groupMemberList.isEmpty()) {
+            throw new CustomException(404, "그룹의 회원이 존재하지 않습니다.");
+        }
+
+        List<MemberInfoDTO> memberInfoDTOList = new ArrayList<>();
+        for (Member groupMember : groupMemberList) {
+            memberInfoDTOList.add(
+                    MemberInfoDTO.builder()
+                            .id(groupMember.getId())
+                            .name(groupMember.getUsername())
+                            .nickname(groupMember.getNickname())
+                            .email(groupMember.getEmail())
+                            .position(groupMember.getPosition())
+                            .authority(groupMember.getAuthority())
+                            .createdAt(groupMember.getCreatedAt())
+                            .build()
+            );
+        }
+
+        System.out.println(memberInfoDTOList);
+        return MemberGroupDTO.builder()
+                .name(member.getUsername())
+                .nickname(member.getNickname())
+                .email(member.getEmail())
+                .groupCode(member.getGroup().getCode())
+                .groupName(member.getGroup().getName())
+                .position(member.getPosition())
+                .introduce(member.getIntroduce())
+                .groupMember(memberInfoDTOList)
                 .build();
     }
 
@@ -150,26 +235,38 @@ public class MemberService {
         Optional<Member> byId = memberRepository.findById(id);
         Member member = byId.get();
         member.update(memberUpdateDTO.getIntroduce(), memberUpdateDTO.getNickname(), memberUpdateDTO.getPosition());
+    }
 
+    @Transactional
+    public void removeMemberGroup(MemberInfoDTO memberInfoDTO){
+        Optional<Member> byId = memberRepository.findById(memberInfoDTO.getId());
+        Member member = byId.get();
+        member.deleteGroupMember();
     }
 
     public ResponseEntity<?> getMemberOfProject(Long projectId) {
-        List<Member> memberByProjectId = memberProjectRepository.findMemberByProjectId(projectId);
+        List<MemberProject> memberByProjectId = memberProjectRepository.findMemberProjectByProjectId(projectId);
         if (memberByProjectId.isEmpty()) {
             ResponseMessage message = new ResponseMessage(404, projectId+"번 프로젝트에 해당하는 회원이 존재하지 않습니다.");
             return new ResponseEntity<>(message,HttpStatus.OK);
         }
 
+
+
         List<MemberInfoDTO> memberInfoDTOList = new ArrayList<>();
 
-            for (Member member : memberByProjectId) {
+            for (MemberProject memberProject : memberByProjectId) {
                 MemberInfoDTO memberInfoDTO = MemberInfoDTO.builder()
-                        .name(member.getUsername())
-                        .nickname(member.getNickname())
-                        .email(member.getEmail())
+                        .id(memberProject.getId())
+                        .name(memberProject.getMember().getUsername())
+                        .nickname(memberProject.getMember().getNickname())
+                        .email(memberProject.getMember().getEmail())
 //                        .groupName(member.getGroup().getName())
-                        .position(member.getPosition())
-//                        .projectList(projectList)
+                        .position(memberProject.getMember().getPosition())
+                        .createdAt(memberProject.getMember().getCreatedAt())
+                        .role(memberProject.getRole())
+//                        .projectList(memberProjectRepository.findProjectByMemberId(memberProject.getId(),"true"))
+                        .exp(memberProject.getMember().getExp())
                         .build();
                 memberInfoDTOList.add(memberInfoDTO);
             }

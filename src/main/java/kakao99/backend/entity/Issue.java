@@ -2,7 +2,6 @@ package kakao99.backend.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
-import kakao99.backend.issue.dto.MemberInfoDTO;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -11,7 +10,9 @@ import net.minidev.json.annotate.JsonIgnore;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 @Entity
 @Getter
@@ -66,6 +67,7 @@ public class Issue {
     @JsonIgnore
     private Member memberInCharge;  // 담당자
 
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id_report")
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
@@ -80,16 +82,18 @@ public class Issue {
     @JsonIgnore
     private ReleaseNote releaseNote;
 
+    @OneToMany(mappedBy = "parentIssue", fetch = FetchType.LAZY)
+    private List<IssueParentChild> childIssues = new ArrayList<>();
 
-    public Issue addReleaseNote(ReleaseNote releaseNote) {
-        this.releaseNote = releaseNote;
+    @OneToMany(mappedBy = "childIssue", fetch = FetchType.LAZY)
+    private List<IssueParentChild> parentIssues = new ArrayList<>();
 
-        return this;
-    }
 
     public Issue deleteReleaseNote() {
         this.releaseNote = null;
         return this;
     }
+
+
 
 }
