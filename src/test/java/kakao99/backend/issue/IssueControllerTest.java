@@ -46,11 +46,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-//@SpringBootTest
-
 @WebMvcTest(controllers = {IssueController.class})
 @AutoConfigureMockMvc
-//@PropertySource("classpath:application.properties")
 public class IssueControllerTest {
 
 
@@ -67,7 +64,6 @@ public class IssueControllerTest {
     private WebApplicationContext context;
 
 
-    // === 테스트
     @MockBean
     IssueRepository issueRepository;
 
@@ -89,28 +85,11 @@ public class IssueControllerTest {
     @MockBean
     NotificationService notificationService;
 
-    // ===
-    /*
-
-    private final IssueRepository issueRepository;
-    private final IssueParentChildRepository issueParentChildRepository;
-    private final IssueService issueService;
-    private final TreeService treeService;
-    private final MemberRepository memberRepository;
-    private final ProjectRepository projectRepository;
-    private final NotificationService notificationService;
-     */
-
     @BeforeEach
     public void mockMvcSetUp() {
         this.mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
 
     }
-
-//    @BeforeEach
-//    public void mockMvcSetUp() {
-//        this.mockMvc = MockMvcBuilders.standaloneSetup(issueController).build();
-//    }
 
     @Test
     public void 이슈_생성_테스트() throws Exception {
@@ -140,15 +119,7 @@ public class IssueControllerTest {
         result.andExpect(status().isOk());
         result.andDo(MockMvcResultHandlers.print());
 
-//        resetTestData();
     }
-
-
-//    public void resetTestData() {
-//        Long maxId = issueRepository.findMaxId();
-//        System.out.println("maxId = " + maxId);
-//        issueRepository.deleteById(maxId);
-//    }
 
     @Test
     public void ChatGPT_이슈중요도_추천() throws Exception {
@@ -169,6 +140,5 @@ public class IssueControllerTest {
         result.andExpect(jsonPath("$.statusCode").value(200));
         result.andExpect(jsonPath("$.message").value("GPT 중요도 추천이 완료되었습니다."));
     }
-
 
 }

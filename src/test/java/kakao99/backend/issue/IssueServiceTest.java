@@ -38,12 +38,12 @@ import static reactor.core.publisher.Mono.when;
 //@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 
 
-@ExtendWith(MockitoExtension.class)
+
 //@DataJpaTest
 //@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 //@ContextConfiguration(classes = BackendApplication.class)
 //@Import(TestConfig.class)
-//@ExtendWith(MockitoExtension.class)
+@ExtendWith(MockitoExtension.class)
 public class IssueServiceTest {
 
     @InjectMocks
@@ -87,6 +87,7 @@ public class IssueServiceTest {
                 given(issueRepository.findAllByProjectId(any(Long.class))).willReturn(issueList);
 
                 List<IssueDTO> allIssues = issueService.getAllIssues(projectId);
+                assertEquals(issueList, allIssues);
                 assertNotNull(allIssues);
 
             }
@@ -109,94 +110,7 @@ public class IssueServiceTest {
     }
 
 
-    @Test
-    void 이슈_조회() {
-
-        Long issueId = 99L;
-
-        Optional<Issue> issueOptional = issueRepository.findById(issueId);
-        Issue issue = issueOptional.get();
-        System.out.println("issue.getTitle() = " + issue.getTitle());
-        assertEquals(issue.getId(), issueId);
-    }
 
 
-    @Test
-    void 종료되지_않은_이슈_조회_테스트() {
 
-        // given
-        Long projectId = 1L;
-        List<Issue> issueListNotFinished = issueRepository.getIssueListNotFinishedOf(projectId);    // 종료되지 않은 이슈
-//        System.out.println("issueListNotFinished = " + issueListNotFinished);
-        int notActiveIssueListLength = issueListNotFinished.stream().toArray().length;
-        System.out.println("notActiveIssueListLength = " + notActiveIssueListLength);
-
-        // when
-        List<Issue> activeIssueList = issueRepository.findAllByProjectId(projectId);
-        if (activeIssueList.isEmpty()) {
-            throw new NoSuchElementException("active한 issue 없음");
-        }
-        int activeIssueListLength = activeIssueList.stream().toArray().length;
-        System.out.println("activeIssueListLength = " + activeIssueListLength);
-
-        // then
-        assertNotEquals(notActiveIssueListLength, activeIssueListLength);
-
-//        assertThat(activeIssueListLength, greaterThan(notActiveIssueListLength));
-//        assertThat(notActiveIssueListLength, greaterThan(activeIssueListLength));
-
-    }
-
-    @Test
-    @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.ANY)
-    void 이슈_생성() {
-
-        Long newIssueId = 99L;
-        Issue newIssue = new Issue().builder()
-                .id(newIssueId)
-                .title("테스트코드")
-                .isActive(true)
-                .build();
-        issueRepository.save(newIssue);
-
-        Optional<Issue> issueById = issueRepository.findById(99L);
-        System.out.println("issueById.get().getTitle() = " + issueById.get().getTitle());
-
-//        assertEquals(issueById.get().getId(), newIssueId);
-
-    }
-
-    @Test
-    void GPT_POST요청() throws Exception{
-        List<Issue> issueListNotFinished = issueRepository.getIssueListNotFinishedOf(1L);
-        // ask importance to gpt
-        List<GPTQuestionDTO> questionList = GPTQuestionDTO.organizeIssueListIntoQuestion(issueListNotFinished);
-
-        List<GPTQuestionDTO> gptQuestionDTOList = issueService.sendIssueListToGPT(questionList);
-
-
-    }
-
-//    @Test
-//    void 잔디밭_데이터_테스트() {
-//        Long memberId = 1L;
-//        List<IssueGrassDTO> numberOfDoneIssues = issueRepository.findNumberOfDoneIssues(memberId);
-//
-//        System.out.println("numberOfDoneIssues.stream().count() = " + numberOfDoneIssues.stream().count());
-//        for (IssueGrassDTO grassData : numberOfDoneIssues) {
-//            System.out.println("grassData.getCount() = " + grassData.getCount());
-//            System.out.println("grassData.getUpdatedAt() = " + grassData.getUpdatedAt());
-//            System.out.println("====");
-//
-//        }
-//        System.out.println("numberOfDoneIssues.get(0) = " + numberOfDoneIssues.get(0).toString());
-//    }
-@Test
-@DisplayName("프로젝트의 max IssueNum")
-public void getMaxIssueNum() {
-    Long projectId = 1L;
-    Long maxIssueNum = issueRepository.findMaxIssueNum(projectId).get();
-    System.out.println("maxIssueNum = " + maxIssueNum);
-
-}
 }
