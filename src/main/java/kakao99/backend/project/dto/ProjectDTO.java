@@ -4,9 +4,12 @@ import kakao99.backend.entity.Group;
 import kakao99.backend.entity.Project;
 import lombok.*;
 
+import java.util.Date;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class ProjectDTO {
     private String name;    // 제목
 
@@ -14,4 +17,5 @@ public class ProjectDTO {
 
     private String status;
 
+    private String role;
 }

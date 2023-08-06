@@ -1,4 +1,5 @@
-package kakao99.backend.utils;
+package kakao99.backend.common;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
@@ -15,11 +16,12 @@ import org.springframework.stereotype.Component;
 public class ResponseMessage {
 
     @NotNull
-    private Integer statusCode;
+    private int statusCode;
 
     @NotNull
     private String message;
 
+    @JsonIgnoreProperties({"hibernateLazyInitializer"})
     private Object data;
 
     public ResponseMessage(Integer statusCode, String message) {

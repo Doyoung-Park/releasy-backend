@@ -47,4 +47,18 @@ public class IssueParentChild {
 
     @Column(name = "is_active")
     private Boolean isActive; // false: 탈퇴한 회원, true: 탈퇴x 회원도
+
+
+
+    public static IssueParentChild createIssueParentChild (Issue parentIssue,Issue childIssue,Date createdAt) {
+
+        return IssueParentChild.builder()
+                .parentIssue(parentIssue)
+                .childIssue(childIssue)
+                .createdAt(createdAt)
+                .updatedAt(null)
+                .deletedAt(null)
+                .isActive(true)  // Assuming memos are active when created
+                .build();
+    }
 }

@@ -3,9 +3,9 @@ package kakao99.backend.memo.controller;
 import kakao99.backend.memo.dto.CreateMemoDTO;
 import kakao99.backend.memo.dto.MemoCreationResponseDTO;
 import kakao99.backend.memo.dto.UpdateMemoDTO;
-import kakao99.backend.memo.dto.memoDTO;
+import kakao99.backend.memo.dto.MemoDTO;
 import kakao99.backend.memo.service.MemoService;
-import kakao99.backend.utils.ResponseMessage;
+import kakao99.backend.common.ResponseMessage;
 import lombok.RequiredArgsConstructor;
 import kakao99.backend.entity.Member;
 import org.springframework.http.HttpStatus;
@@ -26,7 +26,7 @@ public class MemoController {
     @GetMapping("/api/memo/{projectId}/{issueId}")
     public ResponseEntity<?> getMemo(@PathVariable Long issueId)
     {
-        List<memoDTO> memo = memoService.getAllMemo(issueId);
+        List<MemoDTO> memo = memoService.getAllMemo(issueId);
 
         System.out.println("memo" + memo);
 
@@ -36,7 +36,7 @@ public class MemoController {
         return new ResponseEntity(message, HttpStatus.OK);
     }
 
-    @PostMapping("/api/memo/{projectId}/{issueId}/new")
+    @PostMapping("/api/memo/{projectId}/{issueId}")
     public ResponseEntity<?> createMemo(@PathVariable Long issueId , @RequestBody CreateMemoDTO obj, Authentication authentication)
     {
         Member member = (Member) authentication.getPrincipal();
@@ -46,7 +46,7 @@ public class MemoController {
 
     }
 
-    @PatchMapping("/api/memo/{projectId}/{issueId}/{memoId}/patch")
+    @PatchMapping("/api/memo/{projectId}/{issueId}/{memoId}")
     public ResponseEntity<?> patchMemo(@PathVariable Long memoId,@RequestBody UpdateMemoDTO obj,Authentication authentication)
     {
         Member member = (Member) authentication.getPrincipal();
@@ -58,7 +58,7 @@ public class MemoController {
     }
 
 
-    @DeleteMapping("/api/memo/{projectId}/{issueId}/{memoId}/delete")
+    @DeleteMapping("/api/memo/{projectId}/{issueId}/{memoId}")
     public ResponseEntity<?> deleteMemo(@PathVariable Long memoId)
     {
         ResponseEntity<?> updatedMemoId = memoService.deleteMemo(memoId);

@@ -11,10 +11,12 @@ import lombok.Setter;
 @Builder
 public class MemberInfoDTO {
 
+    private Long id;
     private String name;
     private String nickname;
     private String email;
     private String position;
+    private String role;
 
 //    public MemberInfoDTO(String name, String nickname, String email, String position) {
 //        this.name = name;

@@ -5,17 +5,22 @@ import kakao99.backend.entity.Project;
 import kakao99.backend.entity.ReleaseNote;
 import kakao99.backend.member.repository.MemberRepository;
 import kakao99.backend.project.repository.ProjectRepository;
+
 import kakao99.backend.release.dto.CreateReleaseDTO;
+import kakao99.backend.release.dto.GetReleaseDTO;
+import kakao99.backend.release.dto.GetReleaseListDTO;
 import kakao99.backend.release.dto.UpdateReleaseDTO;
+import kakao99.backend.release.service.NoteTreeService;
 import kakao99.backend.release.service.ReleaseService;
-import kakao99.backend.utils.ResponseMessage;
+import kakao99.backend.common.ResponseMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.hibernate.sql.Update;
+import org.springframework.security.core.Authentication;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -27,25 +32,30 @@ public class ReleaseController {
     private final MemberRepository memberRepository;
     private final ProjectRepository projectRepository;
 
+    private final NoteTreeService noteTreeService;
+
     @PostMapping("/api/release/create")
     @ResponseBody
-    public ResponseEntity<ResponseMessage> createRelease(
-            @RequestBody CreateReleaseDTO CreateReleaseDTO) {
-        // member와 project를 조회
-        Optional<Member> member = memberRepository.findById(CreateReleaseDTO.getMemberId());
-        Optional<Project> project = projectRepository.findById(CreateReleaseDTO.getProjectId());
+    public ResponseEntity<ResponseMessage> createReleaseNote(Authentication authentication, @RequestBody CreateReleaseDTO createReleaseDTO) {
 
-        if (member.isEmpty() || project.isEmpty()) {
+        // member와 project를 조회
+        Member member = (Member) authentication.getPrincipal();
+        Optional<Project> project = projectRepository.findById(createReleaseDTO.getProjectId());
+
+        if (project.isEmpty()) {
             ResponseMessage message = new ResponseMessage(204, "멤버 또는 프로젝트를 찾을 수 없습니다.", null);
             return new ResponseEntity<>(message, HttpStatus.NOT_FOUND);
         }
-
-        ReleaseNote releaseNote = releaseService.createRelease(CreateReleaseDTO, member.get(), project.get());
+        ReleaseNote releaseNote = releaseService.createRelease(createReleaseDTO, member, project.get());
 
         if (releaseNote == null) {
             ResponseMessage message = new ResponseMessage(500, "릴리즈 생성에 실패했습니다.", null);
             return new ResponseEntity<>(message, HttpStatus.INTERNAL_SERVER_ERROR);
         }
+
+        Long newId = releaseNote.getId();
+
+        releaseService.updateIssues(newId, createReleaseDTO.getIssueList());
 
         ResponseMessage message = new ResponseMessage(200, "릴리즈 생성 완료", releaseNote);
         return new ResponseEntity<>(message, HttpStatus.OK);
@@ -53,7 +63,7 @@ public class ReleaseController {
 
     @PutMapping("/api/release/update")
     @ResponseBody
-    public ResponseEntity<ResponseMessage> updateRelease(
+    public ResponseEntity<ResponseMessage> updateReleaseNote(
             @RequestBody UpdateReleaseDTO updateReleaseDTO) {
         Optional<ReleaseNote> findReleaseNote = releaseService.getReleaseInfo(updateReleaseDTO.getReleaseId());
 
@@ -62,11 +72,9 @@ public class ReleaseController {
             return new ResponseEntity<>(message, HttpStatus.NOT_FOUND);
         }
 
-        releaseService.updateRelease(updateReleaseDTO.getReleaseId(), updateReleaseDTO.getVersion(), updateReleaseDTO.getStatus(),
-                updateReleaseDTO.getPercent(), updateReleaseDTO.getReleaseDate(), updateReleaseDTO.getBrief(), updateReleaseDTO.getDescription());
+        releaseService.updateRelease(updateReleaseDTO);
 
-        // 또영이형 또와쭤!
-        releaseService.updateIssues(updateReleaseDTO.getProjectId(), updateReleaseDTO.getReleaseId(), updateReleaseDTO.getIssueList());
+        releaseService.updateIssues(updateReleaseDTO.getReleaseId(), updateReleaseDTO.getIssueList());
 
         ResponseMessage message = new ResponseMessage(200, "릴리즈 업데이트 완료", null);
         return new ResponseEntity<>(message, HttpStatus.OK);
@@ -79,14 +87,27 @@ public class ReleaseController {
     ) {
         List<ReleaseNote> releaseNotesInProject = releaseService.findRelease(projectId);
 
+        List<GetReleaseListDTO> releaseList = new ArrayList<>();
+
+        for (ReleaseNote releaseNote : releaseNotesInProject) {
+            GetReleaseListDTO releaseDTO = new GetReleaseListDTO();
+            releaseDTO.setId(releaseNote.getId());
+            releaseDTO.setVersion(releaseNote.getVersion());
+            releaseDTO.setStatus(releaseNote.getStatus());
+            releaseDTO.setReleaseDate(releaseNote.getReleaseDate());
+            releaseDTO.setCreatedAt(releaseNote.getCreatedAt());
+            releaseDTO.setMember(memberRepository.findById(releaseNote.getMember().getId()).get());
+            releaseList.add(releaseDTO);
+        }
+
         ResponseMessage message;
 
-        if (releaseNotesInProject.isEmpty()) {
+        if (releaseList.isEmpty()) {
             message = new ResponseMessage(204, "본 프로젝트에 속한 릴리즈노트가 없습니다.", null);
             return new ResponseEntity<>(message, HttpStatus.NO_CONTENT);
         }
 
-        message = new ResponseMessage(200, "릴리즈노트 목록 조회 완료", releaseNotesInProject);
+        message = new ResponseMessage(200, "릴리즈노트 목록 조회 완료", releaseList);
 
         return new ResponseEntity<>(message, HttpStatus.OK);
     }
@@ -103,10 +124,22 @@ public class ReleaseController {
             return new ResponseEntity<>(message, HttpStatus.NO_CONTENT);
         }
 
-        message = new ResponseMessage(200, "해당 릴리즈노트 조회 완료", releaseNoteInfo.get());
+        ReleaseNote releaseNote = releaseNoteInfo.get();
+        GetReleaseDTO releaseDTO = new GetReleaseDTO();
+        releaseDTO.setVersion(releaseNote.getVersion());
+        releaseDTO.setStatus(releaseNote.getStatus());
+        releaseDTO.setPercent(releaseNote.getPercent());
+        releaseDTO.setReleaseDate(releaseNote.getReleaseDate());
+        releaseDTO.setCreatedAt(releaseNote.getCreatedAt());
+        releaseDTO.setBrief(releaseNote.getBrief());
+        releaseDTO.setDescription(releaseNote.getDescription());
+        releaseDTO.setMember(memberRepository.findById(releaseNote.getMember().getId()).get());
+
+        message = new ResponseMessage(200, "해당 릴리즈노트 조회 완료", releaseDTO);
 
         return new ResponseEntity<>(message, HttpStatus.OK);
     }
+
 
     @DeleteMapping("/api/release/{releaseId}")
     @ResponseBody
@@ -120,24 +153,12 @@ public class ReleaseController {
     }
 
 
-    @PutMapping("/api/release/update/Test")
-    @ResponseBody
-    public ResponseEntity<ResponseMessage> updateReleaseTest(
-            @RequestBody UpdateReleaseDTO updateReleaseDTO) {
-        Optional<ReleaseNote> findReleaseNote = releaseService.getReleaseInfo(updateReleaseDTO.getReleaseId());
+    @GetMapping("/api/{projectId}/releases/tree")
+    public ResponseEntity<ResponseMessage> getTree(@PathVariable("projectId") Long projectId){
+        noteTreeService.getTreesForProject(projectId);
 
-        if (findReleaseNote.isEmpty()) {
-            ResponseMessage message = new ResponseMessage(204, "릴리즈 노트를 찾을 수 없습니다.", null);
-            return new ResponseEntity<>(message, HttpStatus.NOT_FOUND);
-        }
+        ResponseMessage message = new ResponseMessage(200, "트리 생성 완료", noteTreeService.getTreesForProject(projectId));
 
-        releaseService.updateRelease(updateReleaseDTO.getReleaseId(), updateReleaseDTO.getVersion(), updateReleaseDTO.getStatus(),
-                updateReleaseDTO.getPercent(), updateReleaseDTO.getReleaseDate(), updateReleaseDTO.getBrief(), updateReleaseDTO.getDescription());
-
-        // 또영이형 또와쭤!
-        releaseService.updateIssues(updateReleaseDTO.getProjectId(), updateReleaseDTO.getReleaseId(), updateReleaseDTO.getIssueList());
-
-        ResponseMessage message = new ResponseMessage(200, "릴리즈 업데이트 완료", null);
         return new ResponseEntity<>(message, HttpStatus.OK);
     }
 }

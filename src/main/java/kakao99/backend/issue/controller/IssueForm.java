@@ -1,10 +1,12 @@
 package kakao99.backend.issue.controller;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class IssueForm {
     private String title;   // 이슈 제목
     private String writerName;  // 작성자 이름

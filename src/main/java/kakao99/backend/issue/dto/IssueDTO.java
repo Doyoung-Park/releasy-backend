@@ -6,19 +6,25 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.querydsl.core.annotations.QueryProjection;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.ManyToOne;
+import kakao99.backend.entity.Issue;
 import kakao99.backend.entity.Member;
 import kakao99.backend.entity.Memo;
+
 
 import lombok.*;
 import net.minidev.json.annotate.JsonIgnore;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
 
 
 @Getter
 @Setter
 @AllArgsConstructor
 @Builder
+@RequiredArgsConstructor
 public class IssueDTO {
 
     private Long id;
@@ -31,31 +37,107 @@ public class IssueDTO {
     private Integer importance;
     private String file;
     private Date createdAt;
+    private Date updatedAt;
+    private String releasenote;
+    private List<IssueChildDTO> childIssue;
+    private List<IssueChildDTO> parentIssue;
 
+    private boolean isChild;
 
-////    @JsonIgnore
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     @JsonIgnore
-//    @ManyToOne(fetch = FetchType.LAZY)
     private MemberInfoDTO memberIdInCharge;
     private MemberInfoDTO memberReport;
-//    private Long memberIdReport;
-//    private List<Memo> comments;
 
 
-//@QueryProjection87
-//    public IssueDTO(Long id, Integer issueNum, String title, String issueType, String description, String status, Integer listPosition, String file, Date createdAt, MemberInfoDTO memberIdInCharge) {
-//        this.id = id;
-//        this.issueNum = issueNum;
-//        this.title = title;
-//        this.issueType = issueType;
-//        this.description = description;
-//        this.status = status;
-//        this.listPosition = listPosition;
-//        this.file = file;
-//        this.createdAt = createdAt;
-//    this.memberIdInCharge = memberIdInCharge;
-//    }
+
+
+    public static List<IssueDTO> getIssueDTOListFromIssueList(List<Issue> allByNotReleaseNoteId) {
+        return allByNotReleaseNoteId.stream().map(issue -> {
+            // Create the IssueDTO object
+            IssueDTO issueDTO = IssueDTO.builder()
+                    .id(issue.getId())
+                    .issueNum(issue.getIssueNum())
+                    .title(issue.getTitle())
+                    .issueType(issue.getIssueType())
+                    .description(issue.getDescription())
+                    .status(issue.getStatus())
+                    .file(issue.getFile())
+                    .createdAt(issue.getCreatedAt())
+                    .updatedAt(issue.getUpdatedAt())
+                    .memberIdInCharge(MemberInfoDTO.builder()
+                            .name(issue.getMemberInCharge().getUsername())
+                            .nickname(issue.getMemberInCharge().getNickname())
+                            .email(issue.getMemberInCharge().getEmail())
+                            .position(issue.getMemberInCharge().getPosition())
+                            .build())
+                    .memberReport(MemberInfoDTO.builder()
+                            .name(issue.getMemberReport().getUsername())
+                            .nickname(issue.getMemberReport().getNickname())
+                            .email(issue.getMemberReport().getEmail())
+                            .position(issue.getMemberReport().getPosition())
+                            .build())
+                    .importance(issue.getImportance())
+                    .build();
+
+            List<IssueChildDTO> childIssueDTOs = issue.getChildIssues().stream()
+                    .filter(issueParentChild -> issueParentChild.getIsActive()) // Apply the filter here
+                    .map(issueParentChild -> IssueChildDTO.fromIssue(issueParentChild.getChildIssue()))
+                    .collect(Collectors.toList());
+
+            // Add the childIssueDTOs to the issueDTO
+            issueDTO.setChildIssue(childIssueDTOs);
+
+            return issueDTO;
+        }).collect(Collectors.toList());
+    }
+
+    public static IssueDTO fromIssueAndIsChild(Issue issue, boolean isChild) {
+        IssueDTO issueDTO = IssueDTO.builder()
+                .id(issue.getId())
+                .issueNum(issue.getIssueNum())
+                .title(issue.getTitle())
+                .issueType(issue.getIssueType())
+                .description(issue.getDescription())
+                .status(issue.getStatus())
+                .file(issue.getFile())
+                .createdAt(issue.getCreatedAt())
+                .updatedAt(issue.getUpdatedAt())
+                .listPosition(issue.getListPosition())
+                .memberIdInCharge(MemberInfoDTO.builder()
+                        .name(issue.getMemberInCharge().getUsername())
+                        .nickname(issue.getMemberInCharge().getNickname())
+                        .email(issue.getMemberInCharge().getEmail())
+                        .position(issue.getMemberInCharge().getPosition())
+                        .build())
+                .memberReport(MemberInfoDTO.builder()
+                        .name(issue.getMemberReport().getUsername())
+                        .nickname(issue.getMemberReport().getNickname())
+                        .email(issue.getMemberReport().getEmail())
+                        .position(issue.getMemberReport().getPosition())
+                        .build())
+                .importance(issue.getImportance())
+                .isChild(isChild)
+                .build();
+
+        List<IssueChildDTO> childIssueDTOs = issue.getChildIssues().stream()
+                .filter(issueParentChild -> issueParentChild.getIsActive()) // Apply the filter here
+                .map(issueParentChild -> IssueChildDTO.fromIssue(issueParentChild.getChildIssue()))
+                .collect(Collectors.toList());
+
+        List<IssueChildDTO> parentIssueDTOs = issue.getParentIssues().stream()
+                .filter(issueParentChild -> issueParentChild.getIsActive()) // Apply the filter here
+                .map(issueParentChild -> IssueChildDTO.fromIssue(issueParentChild.getParentIssue()))
+                .collect(Collectors.toList());
+
+
+        // Add the childIssueDTOs to the issueDTO
+        issueDTO.setChildIssue(childIssueDTOs);
+        issueDTO.setParentIssue(parentIssueDTOs);
+        return issueDTO;
+    }
+
 }
+
 
 

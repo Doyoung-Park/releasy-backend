@@ -22,6 +22,7 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
 
     Optional<Project> findById(Long id);
 
+    Project findProjectById(Long projectId);
 
     List<Project> findAll();
 
@@ -38,7 +39,6 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
 
 
     List<Project> findAllByGroupCodeAndIsActive(String code, String isActive);
-
 
     @Query("select p from MemberProject p where p.member.id <> :userId and p.member.group.id = :groupId")
     List<MemberProject> getOthersProject(@Param("groupId") Long groupId, @Param("userId") Long userId);

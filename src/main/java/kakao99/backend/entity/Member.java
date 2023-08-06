@@ -13,6 +13,7 @@ import net.minidev.json.annotate.JsonIgnore;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -25,7 +26,7 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 @Table(name = "Members")
-public class Member {
+public class Member implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -37,6 +38,9 @@ public class Member {
 
     @Column
     private String nickname; // 닉네임
+
+    @Column
+    private String introduce; // 소개
 
     @Column
     @Email
@@ -71,6 +75,9 @@ public class Member {
     @Column(name = "is_active")
     private Boolean isActive; // false: 탈퇴한 회원, true: 탈퇴x 회원도
 
+    @Column(name = "exp")
+    private Long exp;
+
 
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
@@ -78,14 +85,33 @@ public class Member {
     @JoinColumn(name = "group_id")
     private Group group;
 
-    @OneToMany(mappedBy = "member", fetch = FetchType.LAZY)
-    @JsonBackReference
-    @JsonIgnore
-    private List<ReleaseNote> releaseNoteList;
+//    @OneToMany(mappedBy = "member", fetch = FetchType.LAZY)
+//    @JsonBackReference
+//    @JsonIgnore
+//    private List<ReleaseNote> releaseNoteList;
     public Member updateOAuth(String email, String username) {
         this.email = email;
         this.username = username;
 
+        return this;
+    }
+
+    public Member update(String introduce, String nickname, String position) {
+        this.nickname = nickname;
+        this.introduce = introduce;
+        this.position = position;
+        return this;
+    }
+
+    public Member deleteGroupMember() {
+        this.group = null;
+        this.authority= null;
+        return this;
+    }
+
+    public Member updateGroup(Group group, String authority) {
+        this.group = group;
+        this.authority= authority;
         return this;
     }
 }

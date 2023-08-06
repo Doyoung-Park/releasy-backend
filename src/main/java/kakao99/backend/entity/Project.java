@@ -52,7 +52,6 @@ public class Project {
     @JsonIgnoreProperties({"hibernateLazyInitializer"})
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "group_id")
-    @JsonIgnore
     private Group group;
 
     public Project updateProject(ProjectModifyDTO projectModifyDTO){
