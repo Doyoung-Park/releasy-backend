@@ -30,10 +30,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
+
 import java.time.*;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+
 import java.util.stream.Collectors;
 
 @Service
@@ -105,6 +107,7 @@ public class IssueService {
     }
 
 
+
     public boolean isChildIssue(Issue issue) {
         return issueParentChildRepository.existsByChildIssue(issue);
     }
@@ -156,6 +159,7 @@ public class IssueService {
             }
             List<IssueDTO> issueDTOListFromIssueList = IssueDTO.getIssueDTOListFromIssueList(issueListIncludedInReleaseNote);
             return issueDTOListFromIssueList;
+
         }
 
 
@@ -324,5 +328,6 @@ public class IssueService {
         }
 
         return result;
+
     }
 }
