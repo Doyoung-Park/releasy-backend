@@ -48,8 +48,6 @@ public class QMember extends EntityPathBase<Member> {
 
     public final StringPath provider = createString("provider");
 
-    public final ListPath<ReleaseNote, QReleaseNote> releaseNoteList = this.<ReleaseNote, QReleaseNote>createList("releaseNoteList", ReleaseNote.class, QReleaseNote.class, PathInits.DIRECT2);
-
     public final DateTimePath<java.util.Date> updatedAt = createDateTime("updatedAt", java.util.Date.class);
 
     public final StringPath username = createString("username");

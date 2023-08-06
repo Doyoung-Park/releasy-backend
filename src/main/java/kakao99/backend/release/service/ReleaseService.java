@@ -1,12 +1,18 @@
 package kakao99.backend.release.service;
 
 import kakao99.backend.entity.*;
+import kakao99.backend.entity.types.NotificationType;
 import kakao99.backend.issue.repository.IssueRepository;
 import kakao99.backend.member.repository.MemberRepository;
+import kakao99.backend.notification.rabbitmq.dto.RequestMessageDTO;
+import kakao99.backend.notification.service.NotificationService;
 import kakao99.backend.release.dto.CreateReleaseDTO;
+import kakao99.backend.release.dto.UpdateReleaseDTO;
+import kakao99.backend.release.repository.ReleaseParentChildRepository;
 import kakao99.backend.release.repository.ReleaseRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 import java.util.List;
@@ -14,15 +20,19 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class ReleaseService {
 
     private final ReleaseRepository releaseRepository;
     private final MemberRepository memberRepository;
     private final IssueRepository issueRepository;
+    private final NotificationService notificationService;
 
+    private final ReleaseParentChildRepository releaseParentChildRepository;
+    @Transactional
     public ReleaseNote createRelease(CreateReleaseDTO createReleaseDTO, Member member, Project project) {
 
-        ReleaseNote releaseNote = ReleaseNote.builder()
+        ReleaseNote newReleaseNote = ReleaseNote.builder()
                 .version(createReleaseDTO.getVersion())
                 .status(createReleaseDTO.getStatus())
                 .percent(createReleaseDTO.getPercent())
@@ -35,7 +45,46 @@ public class ReleaseService {
                 .deletedAt(null)
                 .build();
 
-        return releaseRepository.save(releaseNote);
+        releaseRepository.save(newReleaseNote);
+
+        RequestMessageDTO requestMessageDTO = new RequestMessageDTO().builder()
+                .type(NotificationType.RELEASENOTECREATED)
+                .specificTypeId(newReleaseNote.getId())
+                .projectId(newReleaseNote.getProject().getId())
+                .build();
+
+        notificationService.createNotification(requestMessageDTO);
+
+
+
+        // Then retrieve parent note based on versioning rule and create parent-child relationship if parent note exists
+        ReleaseNote parentNote = getParentNoteBasedOnVersion(createReleaseDTO.getVersion(), project);
+        if(parentNote != null) {
+            ReleaseNoteParentChild releaseNoteParentChild = ReleaseNoteParentChild.createReleaseNoteParentChild(parentNote, newReleaseNote, new Date());
+            releaseParentChildRepository.save(releaseNoteParentChild);
+        }
+
+        return newReleaseNote;
+    }
+
+    private ReleaseNote getParentNoteBasedOnVersion(String version, Project project) {
+        String[] versions = version.split("\\.");
+        if (versions.length != 3) {
+            throw new IllegalArgumentException("Version should be in the format of x.y.z");
+        }
+
+        int major = Integer.parseInt(versions[0]);
+        int minor = Integer.parseInt(versions[1]);
+        int patch = Integer.parseInt(versions[2]);
+
+        if(patch > 0) {
+            //패치가 생성되면 maior.minor.0을 상위 릴리즈 노트로 설정
+            String parentVersion = major + "." + minor + "." + "0";
+            return releaseRepository.findByVersionAndProject(parentVersion, project);
+        }else{
+            return null;
+        }
+
     }
 
     public List<ReleaseNote> findRelease(Long id) {
@@ -48,10 +97,31 @@ public class ReleaseService {
         return releaseRepository.findById(id);
     }
 
-    public void updateRelease(Long id, String version, String status, Float percent, Date releaseDate, String brief, String description) {
-        releaseRepository.updateReleaseNoteById(id, version, status, percent, releaseDate, brief, description);
+
+//            releaseService.updateRelease(updateReleaseDTO.getReleaseId(), updateReleaseDTO.getVersion(), updateReleaseDTO.getStatus(),
+//                    updateReleaseDTO.getPercent(), updateReleaseDTO.getReleaseDate(), updateReleaseDTO.getBrief(), updateReleaseDTO.getDescription());
+
+    @Transactional
+    public void updateRelease(UpdateReleaseDTO updateReleaseDTO) {
+
+        releaseRepository.updateReleaseNoteById(updateReleaseDTO.getReleaseId(), updateReleaseDTO.getVersion(),
+                updateReleaseDTO.getStatus(), updateReleaseDTO.getPercent(), updateReleaseDTO.getReleaseDate(),
+                updateReleaseDTO.getBrief(), updateReleaseDTO.getDescription());
+
+        ReleaseNote releaseNote = releaseRepository.findById(updateReleaseDTO.getReleaseId()).get();
+
+
+
+        RequestMessageDTO requestMessageDTO = new RequestMessageDTO().builder()
+                .type(NotificationType.RELEASENOTECHANGED)
+                .specificTypeId(updateReleaseDTO.getReleaseId())
+                .projectId(releaseNote.getProject().getId())
+                .build();
+
+        notificationService.createNotification(requestMessageDTO);
     }
 
+    @Transactional
     public void updateIssues(Long releaseId, List<Issue> newIssueList) {   // issueList : 결과물
         List<Issue> oldIssueListOfReleaseNote = issueRepository.findAllByReleaseNoteId(releaseId);
 
@@ -94,8 +164,19 @@ public class ReleaseService {
         return;
     }
 
-    public void deleteRelease(Long id) {
+    @Transactional
+    public void deleteRelease(Long releaseNoteId) {
         // 릴리즈 노트 아이디로 isActive를 False로 바꾸고 지운 시간 넣어주기
-        releaseRepository.updateIsActiveById(id, new Date());
+        releaseRepository.updateIsActiveById(releaseNoteId, new Date());
+
+        ReleaseNote releaseNote = releaseRepository.findById(releaseNoteId).get();
+
+        RequestMessageDTO requestMessageDTO = new RequestMessageDTO().builder()
+                .type(NotificationType.RELEASENOTEDELETED)
+                .specificTypeId(releaseNoteId)
+                .projectId(releaseNote.getProject().getId())
+                .build();
+
+        notificationService.createNotification(requestMessageDTO);
     }
 }

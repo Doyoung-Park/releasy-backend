@@ -1,5 +1,10 @@
 package kakao99.backend.member.service;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.ResourceLoader;
 import kakao99.backend.common.exception.CustomException;
 import kakao99.backend.entity.Group;
 import kakao99.backend.entity.Member;
@@ -13,25 +18,37 @@ import kakao99.backend.project.repository.MemberProjectRepository;
 import kakao99.backend.common.ResponseMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.FileCopyUtils;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.*;
+import java.nio.file.Paths;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class MemberService {
-
+    private final ResourceLoader resourceLoader;
     private final MemberRepository memberRepository;
     private final PasswordEncoder passwordEncoder;
     private final TokenProvider tokenProvider;
     private final GroupRepository groupRepository;
     private final MemberProjectRepository memberProjectRepository;
-
+    private final RedisTemplate<String, String> redisTemplate;
+    private static final  String absolutePath = "C:\\Users\\USER\\Desktop\\releasy_be\\BackEnd\\src\\main\\resources\\static\\";
     @Transactional
     public Long create(RegisterDTO registerDTO) {
 
@@ -152,6 +169,9 @@ public class MemberService {
         }
 
         String accessToken = tokenProvider.createAccessToken(member);
+        String key = String.valueOf(member.getId());
+        String value = "Online";
+        redisTemplate.opsForValue().set(key, value, 10, TimeUnit.MINUTES);
         //ResponseMessage message = new ResponseMessage(200, "로그인이 완료 되었습니다.", accessToken);
         return accessToken;
     }
@@ -170,6 +190,7 @@ public class MemberService {
         List<Project> projectList = memberProjectRepository.findProjectByMemberId(memberId, "true");
 
         return MemberInfoDTO.builder()
+                .id(member.getId())
                 .name(member.getUsername())
                 .nickname(member.getNickname())
                 .email(member.getEmail())
@@ -202,6 +223,7 @@ public class MemberService {
             memberInfoDTOList.add(
                     MemberInfoDTO.builder()
                             .id(groupMember.getId())
+                            .introduce(groupMember.getIntroduce())
                             .name(groupMember.getUsername())
                             .nickname(groupMember.getNickname())
                             .email(groupMember.getEmail())
@@ -214,6 +236,7 @@ public class MemberService {
 
         System.out.println(memberInfoDTOList);
         return MemberGroupDTO.builder()
+                .id(member.getId())
                 .name(member.getUsername())
                 .nickname(member.getNickname())
                 .email(member.getEmail())
@@ -251,26 +274,67 @@ public class MemberService {
             return new ResponseEntity<>(message,HttpStatus.OK);
         }
 
-
-
         List<MemberInfoDTO> memberInfoDTOList = new ArrayList<>();
 
             for (MemberProject memberProject : memberByProjectId) {
-                MemberInfoDTO memberInfoDTO = MemberInfoDTO.builder()
-                        .id(memberProject.getId())
-                        .name(memberProject.getMember().getUsername())
-                        .nickname(memberProject.getMember().getNickname())
-                        .email(memberProject.getMember().getEmail())
+                String memberIdKey = String.valueOf(memberProject.getMember().getId());
+                System.out.println("key"+memberIdKey);
+                Boolean isOnline = redisTemplate.hasKey(memberIdKey);
+                if(isOnline) {
+                    System.out.println("11111");
+                    MemberInfoDTO memberInfoDTO = MemberInfoDTO.builder()
+                            .id(memberProject.getId())
+                            .status("online")
+                            .name(memberProject.getMember().getUsername())
+                            .nickname(memberProject.getMember().getNickname())
+                            .email(memberProject.getMember().getEmail())
 //                        .groupName(member.getGroup().getName())
-                        .position(memberProject.getMember().getPosition())
-                        .createdAt(memberProject.getMember().getCreatedAt())
-                        .role(memberProject.getRole())
+                            .position(memberProject.getMember().getPosition())
+                            .createdAt(memberProject.getMember().getCreatedAt())
+                            .role(memberProject.getRole())
 //                        .projectList(memberProjectRepository.findProjectByMemberId(memberProject.getId(),"true"))
-                        .exp(memberProject.getMember().getExp())
-                        .build();
-                memberInfoDTOList.add(memberInfoDTO);
+                          .exp(memberProject.getMember().getExp())
+                            .build();
+
+                    memberInfoDTOList.add(memberInfoDTO);
+                }else {
+                    System.out.println("22222");
+                    MemberInfoDTO memberInfoDTO = MemberInfoDTO.builder()
+                            .id(memberProject.getId())
+                            .status("offline")
+                            .name(memberProject.getMember().getUsername())
+                            .nickname(memberProject.getMember().getNickname())
+                            .email(memberProject.getMember().getEmail())
+//                        .groupName(member.getGroup().getName())
+                            .position(memberProject.getMember().getPosition())
+                            .createdAt(memberProject.getMember().getCreatedAt())
+                            .role(memberProject.getRole())
+//                        .projectList(memberProjectRepository.findProjectByMemberId(memberProject.getId(),"true"))
+                         .exp(memberProject.getMember().getExp())
+                            .build();
+
+                    memberInfoDTOList.add(memberInfoDTO);
+                }
+
             }
         ResponseMessage message = new ResponseMessage(200, projectId+"번 프로젝트의 회원 정보 조회 완료", memberInfoDTOList);
         return new ResponseEntity<>(message, HttpStatus.OK);
+    }
+
+    public void saveImage(Authentication authentication, MultipartFile profileImg){
+        Member member = (Member) authentication.getPrincipal();
+        String fileName = String.valueOf(member.getId());
+        System.out.println(profileImg.getOriginalFilename());
+        System.out.println("Received image: " + fileName);
+        try {
+             // Replace this with your desired absolute path
+            String filePath = absolutePath + fileName + ".jpg";
+
+            File file = new File(filePath);
+
+            profileImg.transferTo(file);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

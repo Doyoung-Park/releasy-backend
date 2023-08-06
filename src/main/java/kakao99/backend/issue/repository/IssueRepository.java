@@ -5,6 +5,7 @@ import kakao99.backend.entity.Issue;
 import kakao99.backend.entity.IssueParentChild;
 import kakao99.backend.entity.Member;
 import kakao99.backend.entity.Project;
+import kakao99.backend.issue.dto.IssueGrassDTO;
 import kakao99.backend.issue.dto.MemberInfoDTO;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -22,13 +23,8 @@ import java.util.Optional;
 public interface IssueRepository extends JpaRepository<Issue, Long>, IssueRepositoryCustom {
     Issue save(Issue issue);
 
-    @Query("select m from Issue m where m.isActive = true")
-    Optional<Issue> findIssueById(Long issueId);
-
-
     @Query("select m from Issue m join fetch m.project join fetch m.memberInCharge join fetch m.memberReport where m.project.id=:projectId and m.isActive = true")
     List<Issue> findAllByProjectId(@Param("projectId") Long projectId);
-
 
     Optional<Issue> findById(Long issueId);
 
@@ -46,6 +42,8 @@ public interface IssueRepository extends JpaRepository<Issue, Long>, IssueReposi
     @Query("select m from Issue m join fetch m.project join fetch m.memberInCharge where m.project.id=:projectId and m.status = :status and m.issueType = :issueType and m.memberInCharge.username = :username and m.isActive = true")
     List<Issue> findAllByStatusAndTypeAndUsername(@Param("projectId") Long projectId, @Param("status") String status,@Param("issueType") String type,@Param("username") String username);
 
+    @Query("select m from Issue m join fetch m.memberInCharge where m.memberInCharge.id=:memberId and m.status='done'")
+    List<Issue> findDoneIssuesByMemberId(@Param("memberId") Long memberId);
 
 
     @Modifying
@@ -97,7 +95,22 @@ public interface IssueRepository extends JpaRepository<Issue, Long>, IssueReposi
     @Query("UPDATE Issue m SET m.releaseNote.id =:releaseNoteId  where m.id =:issueId")
     int insertIssueFromReleaseNote(@Param("releaseNoteId") Long releaseNoteId, @Param("issueId") Long issueId);
 
-
     @Query("SELECT MAX(i.id) FROM Issue i")
     Long findMaxId();
+
+    @Query("SELECT MAX(i.issueNum) FROM Issue i WHERE i.project.id=:projectId")
+    Optional<Long> findMaxIssueNum(@Param("projectId") Long projectId);
+
+
+    @Modifying
+    @Transactional
+    @Query("UPDATE Issue m SET m.importance = :importance where m.id = :issueId")
+    int updateImportanceByGPT(@Param("issueId") Long issueId, @Param("importance") Integer importance);
+
+
+    void deleteChild(Long issueId, Long childissueId);
+
+    List<Issue> findWithoutExcludeId(Long projectId,  List<Long> excludeIdList);
+
+    List<Long> findExcludeId(Long projectId, Long excludeId);
 }

@@ -6,17 +6,17 @@ import kakao99.backend.common.exception.ErrorCode;
 import kakao99.backend.entity.*;
 
 import kakao99.backend.common.exception.CustomException;
-import kakao99.backend.issue.dto.DragNDropDTO;
-import kakao99.backend.issue.dto.GPTQuestionDTO;
-import kakao99.backend.issue.dto.IssueDTO;
+import kakao99.backend.entity.types.NotificationType;
+import kakao99.backend.issue.dto.*;
 
 
-import kakao99.backend.issue.dto.ProjectWithIssuesDTO;
 import kakao99.backend.issue.repository.IssueParentChildRepository;
 import kakao99.backend.issue.repository.IssueRepository;
 import kakao99.backend.issue.service.IssueService;
 import kakao99.backend.issue.service.TreeService;
 import kakao99.backend.member.repository.MemberRepository;
+import kakao99.backend.notification.rabbitmq.dto.RequestMessageDTO;
+import kakao99.backend.notification.service.NotificationService;
 import kakao99.backend.project.repository.ProjectRepository;
 import kakao99.backend.common.ResponseMessage;
 import lombok.RequiredArgsConstructor;
@@ -45,41 +45,17 @@ public class IssueController {
     private final TreeService treeService;
     private final MemberRepository memberRepository;
     private final ProjectRepository projectRepository;
-
+    private final NotificationService notificationService;
 
     // 이슈 생성
     @PostMapping("/api/project/{projectId}/issue")
-        public ResponseEntity<?> createIssue(@RequestBody IssueForm issue, @PathVariable("projectId") Long projectId) {
+        public ResponseEntity<?> createIssue(Authentication authentication, @RequestBody IssueForm issueForm, @PathVariable("projectId") Long projectId) {
+        log.info("이슈 생성");
 
-        Optional<Member> memberById = memberRepository.findById(issue.getUserId());
-        
-        if (memberById.isEmpty()) {
-            ResponseMessage message = new ResponseMessage(404, "해당 userId에 해당하는 유저 데이터 없음.");
-            return new ResponseEntity<>(message, HttpStatus.NOT_FOUND);
-        }
+        Member member = (Member) authentication.getPrincipal();
 
-        Optional<Project> projectById = projectRepository.findById(projectId);
-        if (projectById.isEmpty()) {
-            ResponseMessage message = new ResponseMessage(404, "해당 projectId 해당하는 프로젝트 데이터 없음.");
-            return new ResponseEntity<>(message, HttpStatus.NOT_FOUND);
-        }
+        issueService.createNewIssue(member, issueForm, projectId);
 
-        Member member = memberById.get();
-        Project project = projectById.get();
-
-        Issue newIssue = new Issue().builder()
-                .title(issue.getTitle())
-                .issueType(issue.getType())
-                .description(issue.getDescription())
-                .memberReport(member)
-                .memberInCharge(member)
-                .status("backlog")
-                .project(project)
-                .isActive(true)
-                .build();
-
-
-        issueRepository.save(newIssue);
         ResponseMessage message = new ResponseMessage(200, "이슈 생성 성공");
         return new ResponseEntity(message, HttpStatus.OK);
     }
@@ -129,9 +105,7 @@ public class IssueController {
             @RequestParam(value = "status", required = false) String status,
             @RequestParam(value = "type", required = false) String type,
             @RequestParam(value = "username", required = false) String name,
-            @RequestParam(value = "exclude",required = false) Long excludeId)
-    {
-
+            @RequestParam(value = "exclude",required = false) Long excludeId) {
 
         List<IssueDTO> allIssues = null;
 
@@ -217,7 +191,6 @@ public class IssueController {
 
     // 예외 처리 예시
     @GetMapping("/test/test/{releaseNoteId}")
-
     public String exceptionExample(@PathVariable("releaseNoteId") Long releaseNoteId) {
 
         if (releaseNoteId == 0)
@@ -259,12 +232,11 @@ public class IssueController {
 
 
     @DeleteMapping("/api/issue/{issueId}")
-    public ResponseEntity<?> deleteIssue(Authentication authentication, /* @RequestBody Long issueId */ @PathVariable("issueId") Long issueId) {
-        System.out.println("issueId = " + issueId);
+    public ResponseEntity<?> deleteIssue(Authentication authentication, @PathVariable("issueId") Long issueId) {
 
         Member member = (Member) authentication.getPrincipal();
 
-        issueService.deleteIssue(issueId, member.getId());
+        issueService.deleteIssue(issueId, member);
 
         ResponseMessage message = new ResponseMessage(200, issueId + "번이 삭제되었습니다.");
         return new ResponseEntity<>(message, HttpStatus.OK);
@@ -279,6 +251,28 @@ public class IssueController {
         ResponseMessage message = new ResponseMessage(200, "GPT 중요도 추천이 완료되었습니다.", askedResult);
         return new ResponseEntity<>(message, HttpStatus.OK);
     }
-}
 
+    @PostMapping("api/project/{projectId}/importance")
+    public ResponseEntity<?> saveImportanceFromGPT(@PathVariable("projectId") Long projectId, @RequestBody List<GPTsaveDTO> gptsaveDTOList, Authentication authentication) throws Exception {
+        log.info("chatGPT로 요청한 이슈 중요도 저장");
+
+        for (GPTsaveDTO dto : gptsaveDTOList) {
+            issueRepository.updateImportanceByGPT(dto.getId(), dto.getImportance());
+        }
+
+        ResponseMessage message = new ResponseMessage(200, "GPT 중요도 추천이 완료되었습니다.", gptsaveDTOList);
+        return new ResponseEntity<>(message, HttpStatus.OK);
+    }
+
+    @GetMapping("api/mypage/issue")
+    public ResponseEntity<?> getGrassInfo(Authentication authentication) {
+        Member member = (Member) authentication.getPrincipal();
+        log.info("member"+ member);
+
+        log.info("잔디 채우기: 일별 이슈 해결 수 요청");
+        List<IssueGrassDTO> issueGrassDTOList = issueService.countDoneIssuesByDate(member.getId());
+        ResponseMessage message = new ResponseMessage(200, "잔디 데이터 받아오기.", issueGrassDTOList);
+        return new ResponseEntity<>(message, HttpStatus.OK);
+    }
+}
 

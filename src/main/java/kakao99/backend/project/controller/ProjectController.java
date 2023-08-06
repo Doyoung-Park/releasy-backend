@@ -87,7 +87,6 @@ public class ProjectController {
     public ResponseEntity<?> getMyProject(Authentication authentication){
         Member member = (Member) authentication.getPrincipal();
         List<Project> projects = memberProjectRepository.findProjectByMemberId(member.getId(), "true");
-
         List<ProjectPMDTO> projectPMDTOS = null;
         try {
             projectPMDTOS = projectService.makeProjectPMDTOS(projects);

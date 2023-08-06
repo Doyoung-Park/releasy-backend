@@ -8,7 +8,9 @@ import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 @Entity
 @Getter
@@ -64,4 +66,10 @@ public class ReleaseNote {
     @JsonManagedReference
     @JsonIgnore
     private Member member;
+
+    @OneToMany(mappedBy = "parentNote", fetch = FetchType.LAZY)
+    private List<ReleaseNoteParentChild> childNote = new ArrayList<>();
+
+    @OneToMany(mappedBy = "childNote", fetch = FetchType.LAZY)
+    private List<ReleaseNoteParentChild> parentNote = new ArrayList<>();
 }

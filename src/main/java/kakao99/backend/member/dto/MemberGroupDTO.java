@@ -14,6 +14,7 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 public class MemberGroupDTO {
+    private Long id;
     private String name;
     private String nickname;
     private String email;

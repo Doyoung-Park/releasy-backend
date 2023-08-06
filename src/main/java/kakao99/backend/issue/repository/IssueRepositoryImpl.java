@@ -13,15 +13,14 @@ import kakao99.backend.issue.dto.DragNDropDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
-
 import java.util.*;
-
-import kakao99.backend.entity.*;
 
 
 import java.util.Date;
 import java.util.List;
 import java.util.NoSuchElementException;
+
+import static com.querydsl.core.group.GroupBy.groupBy;
 
 
 @Repository
@@ -43,7 +42,7 @@ public class IssueRepositoryImpl implements IssueRepositoryCustom {
 
     private QMember member = QMember.member;
 
-
+//    private QIssueGrassDTO issueGrassDTO = QIssueGrassDTO();
 
 
 
@@ -149,7 +148,8 @@ public class IssueRepositoryImpl implements IssueRepositoryCustom {
     public void updateIssue(UpdateIssueForm updateIssueForm, Long issueId) {
 
         JPAUpdateClause query = this.query.update(issue)
-                .where(issue.id.eq(issueId).and(issue.isActive.eq(true)));
+                .where(issue.id.eq(issueId).and(issue.isActive.eq(true)))
+                .set(issue.updatedAt, new Date());
 
         if(updateIssueForm.getTitle() != null){
             query.set(issue.title, updateIssueForm.getTitle());
@@ -176,7 +176,8 @@ public class IssueRepositoryImpl implements IssueRepositoryCustom {
     @Transactional
     public void updateIssueByDragNDrop(DragNDropDTO dragNDropDTO) {
         JPAUpdateClause query = this.query.update(issue)
-                .where(issue.id.eq(dragNDropDTO.getIssueId()).and(issue.isActive.eq(true)));
+                .where(issue.id.eq(dragNDropDTO.getIssueId()).and(issue.isActive.eq(true)))
+                .set(issue.updatedAt, new Date());;
 
         if (dragNDropDTO.getDestinationStatus() != null) {
             query.set(issue.status, dragNDropDTO.getDestinationStatus());
@@ -215,7 +216,6 @@ public class IssueRepositoryImpl implements IssueRepositoryCustom {
     @Transactional
     public void deleteChild(Long issueId, Long childissueId) {
 
-
         long execute = this.query.update(issueParentChild)
                 .set(issueParentChild.isActive, false)
                 .set(issueParentChild.deletedAt, new Date())
@@ -235,4 +235,5 @@ public class IssueRepositoryImpl implements IssueRepositoryCustom {
         }
         return issueList;
     }
+
 }

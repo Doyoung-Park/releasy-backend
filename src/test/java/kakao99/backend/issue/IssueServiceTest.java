@@ -1,9 +1,10 @@
 package kakao99.backend.issue;
 
-import kakao99.backend.BackendApplication;
-import kakao99.backend.config.TestConfig;
+
 import kakao99.backend.entity.Issue;
+import kakao99.backend.entity.Member;
 import kakao99.backend.issue.dto.GPTQuestionDTO;
+import kakao99.backend.issue.dto.IssueDTO;
 import kakao99.backend.issue.repository.IssueParentChildRepository;
 import kakao99.backend.issue.repository.IssueRepository;
 import kakao99.backend.issue.repository.IssueRepositoryImpl;
@@ -11,49 +12,47 @@ import kakao99.backend.issue.service.IssueService;
 import kakao99.backend.member.repository.MemberRepository;
 import kakao99.backend.notification.service.NotificationService;
 import kakao99.backend.project.service.ProjectService;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Import;
-import org.springframework.http.ResponseEntity;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import java.util.Collection;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
-import static org.hamcrest.Matchers.greaterThan;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static reactor.core.publisher.Mono.when;
 
 
 //@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 
 
 @ExtendWith(MockitoExtension.class)
-@DataJpaTest
-@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+//@DataJpaTest
+//@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 //@ContextConfiguration(classes = BackendApplication.class)
-@Import(TestConfig.class)
+//@Import(TestConfig.class)
 //@ExtendWith(MockitoExtension.class)
 public class IssueServiceTest {
 
     @InjectMocks
     IssueService issueService;
 
-//    @Mock
-    @Autowired
+
+//    @MockBean
+//    @Autowired
+    @Mock
     IssueRepository issueRepository;
     @Mock
     MemberRepository memberRepository;
@@ -66,27 +65,54 @@ public class IssueServiceTest {
     @Mock
     IssueParentChildRepository issueParentChildRepository;
 
+    @Nested
+    @DisplayName("모든 이슈 조회 테스트")
+    class GetIssue {
 
-//    @InjectMocks
-//    private IssueService issueService;
+        private Long projectId;
 
-//    @BeforeEach
-//    public void beforeEach() {
-//    issueRepository = new IssueRepository() {
-//    }
-//    }
+        @BeforeEach
+        void setUp() {
+            projectId = 1L;
+        }
 
-    @Test
-    void Chat_GPT_API_테스트() {
-        System.out.println("hi");
+        @Nested
+        @DisplayName("정상 케이스")
+        class SuccessCase {
 
-//        issueRepository.getIssueListNotFinishedOf(projectId);
+            @DisplayName("모든 이슈 조회")
+            @Test
+            void getAllIssues() {
+                List<Issue> issueList = new ArrayList<>();
+                given(issueRepository.findAllByProjectId(any(Long.class))).willReturn(issueList);
+
+                List<IssueDTO> allIssues = issueService.getAllIssues(projectId);
+                assertNotNull(allIssues);
+
+            }
+        }
+
+        @Nested
+        @DisplayName("실패 케이스")
+        class FailCase {
+            @Test
+            @DisplayName("타입 불일치")
+            void getAnotherType() {
+                Issue issue = new Issue();
+                List<Issue> issueList = new ArrayList<>();
+                given(issueRepository.findAllByProjectId(any(Long.class))).willReturn(issueList);
+
+                List<IssueDTO> allIssues = issueService.getAllIssues(projectId);
+                assertEquals(allIssues, issue);
+            }
+        }
     }
+
 
     @Test
     void 이슈_조회() {
 
-        Long issueId = 1L;
+        Long issueId = 99L;
 
         Optional<Issue> issueOptional = issueRepository.findById(issueId);
         Issue issue = issueOptional.get();
@@ -151,4 +177,26 @@ public class IssueServiceTest {
 
     }
 
+//    @Test
+//    void 잔디밭_데이터_테스트() {
+//        Long memberId = 1L;
+//        List<IssueGrassDTO> numberOfDoneIssues = issueRepository.findNumberOfDoneIssues(memberId);
+//
+//        System.out.println("numberOfDoneIssues.stream().count() = " + numberOfDoneIssues.stream().count());
+//        for (IssueGrassDTO grassData : numberOfDoneIssues) {
+//            System.out.println("grassData.getCount() = " + grassData.getCount());
+//            System.out.println("grassData.getUpdatedAt() = " + grassData.getUpdatedAt());
+//            System.out.println("====");
+//
+//        }
+//        System.out.println("numberOfDoneIssues.get(0) = " + numberOfDoneIssues.get(0).toString());
+//    }
+@Test
+@DisplayName("프로젝트의 max IssueNum")
+public void getMaxIssueNum() {
+    Long projectId = 1L;
+    Long maxIssueNum = issueRepository.findMaxIssueNum(projectId).get();
+    System.out.println("maxIssueNum = " + maxIssueNum);
+
+}
 }

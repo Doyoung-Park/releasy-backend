@@ -24,6 +24,8 @@ public class QReleaseNote extends EntityPathBase<ReleaseNote> {
 
     public final StringPath brief = createString("brief");
 
+    public final ListPath<ReleaseNoteParentChild, QReleaseNoteParentChild> childNote = this.<ReleaseNoteParentChild, QReleaseNoteParentChild>createList("childNote", ReleaseNoteParentChild.class, QReleaseNoteParentChild.class, PathInits.DIRECT2);
+
     public final DateTimePath<java.util.Date> createdAt = createDateTime("createdAt", java.util.Date.class);
 
     public final DateTimePath<java.util.Date> deletedAt = createDateTime("deletedAt", java.util.Date.class);
@@ -35,6 +37,8 @@ public class QReleaseNote extends EntityPathBase<ReleaseNote> {
     public final BooleanPath isActive = createBoolean("isActive");
 
     public final QMember member;
+
+    public final ListPath<ReleaseNoteParentChild, QReleaseNoteParentChild> parentNote = this.<ReleaseNoteParentChild, QReleaseNoteParentChild>createList("parentNote", ReleaseNoteParentChild.class, QReleaseNoteParentChild.class, PathInits.DIRECT2);
 
     public final NumberPath<Float> percent = createNumber("percent", Float.class);
 

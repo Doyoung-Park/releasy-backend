@@ -1,5 +1,7 @@
 package kakao99.backend.member.controller;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import kakao99.backend.entity.Member;
 import kakao99.backend.group.dto.GroupNameDTO;
 import kakao99.backend.member.dto.*;
@@ -7,11 +9,27 @@ import kakao99.backend.member.service.MemberService;
 import kakao99.backend.common.ResponseMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.util.FileCopyUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
+
+import static io.lettuce.core.pubsub.PubSubOutput.Type.message;
 
 @RestController
 @RequiredArgsConstructor
@@ -19,10 +37,11 @@ import org.springframework.web.bind.annotation.*;
 public class MemberController {
 
     private final MemberService memberService;
+    private static final Set<HttpSession> activeSessions = new HashSet<>();
+    private final RedisTemplate<String, String> redisTemplate;
 
     @PostMapping("/api/member/signup/group")
     public ResponseEntity<?> groupCreate(@Validated @RequestBody RegisterDTO registerDTO) {
-
         memberService.create(registerDTO);
         ResponseMessage message = new ResponseMessage(200, "회원 가입이 완료 되었습니다.");
         return new ResponseEntity<>(message, HttpStatus.OK);
@@ -30,7 +49,6 @@ public class MemberController {
 
     @PostMapping("/api/member/signup/group/join")
     public ResponseEntity<?> groupJoin(@Validated @RequestBody RegisterDTO registerDTO) {
-
         memberService.join(registerDTO);
         ResponseMessage message = new ResponseMessage(200, "회원 가입이 완료 되었습니다.");
         return new ResponseEntity<>(message, HttpStatus.OK);
@@ -52,10 +70,22 @@ public class MemberController {
 
     @PostMapping("/api/member/login")
     public ResponseEntity<ResponseMessage> login(@Validated @RequestBody LoginDTO loginDTO) {
+            String accessToken = memberService.login(loginDTO);
 
-        String accessToken = memberService.login(loginDTO);
 
         ResponseMessage message = new ResponseMessage(200, "로그인이 완료 되었습니다.", accessToken);
+        return new ResponseEntity<>(message, HttpStatus.OK);
+    }
+
+    @PostMapping("/api/member/logout")
+    public ResponseEntity<?> logout(Authentication authentication) {
+        Member member = (Member) authentication.getPrincipal();
+        String memberIdKey = String.valueOf(member.getId());
+        if (redisTemplate.hasKey(memberIdKey)) {
+            redisTemplate.delete(memberIdKey);
+        }
+
+        ResponseMessage message = new ResponseMessage(200, "로그아웃 완료");
         return new ResponseEntity<>(message, HttpStatus.OK);
     }
 
@@ -74,7 +104,6 @@ public class MemberController {
     // 프로젝트 내의 멤버 조회 API
     @GetMapping("/api/project/{projectId}/members")
     public ResponseEntity<?> getMemberOfProject(@PathVariable("projectId") Long projectId) {
-
         return memberService.getMemberOfProject(projectId);
     }
 
@@ -112,5 +141,25 @@ public class MemberController {
         ResponseMessage message = new ResponseMessage(200,memberInfoDTO.getName()+"유저가 그룹에서 삭제됐습니다.");
         return new ResponseEntity<>(message, HttpStatus.OK);
     }
+
+    @PostMapping("/api/keepAlive")
+    public ResponseEntity<ResponseMessage> keepSessionAlive(Authentication authentication) {
+        Member member = (Member) authentication.getPrincipal();
+        String key = String.valueOf(member.getId());
+        String value = "Online";
+        redisTemplate.opsForValue().set(key, value, 10, TimeUnit.MINUTES);
+        ResponseMessage message = new ResponseMessage(200, "세션 유지 요청 성공.");
+        return new ResponseEntity<>(message, HttpStatus.OK);
+    }
+
+    @PostMapping("/api/member/profileImage")
+    public ResponseEntity<ResponseMessage> uploadImage(Authentication authentication, @RequestPart("profileImg") MultipartFile profileImg) {
+        memberService.saveImage(authentication, profileImg);
+
+        ResponseMessage message = new ResponseMessage(200, "이미지 저장 성공.");
+        return new ResponseEntity<>(message, HttpStatus.OK);
+    }
+
+
 
 }

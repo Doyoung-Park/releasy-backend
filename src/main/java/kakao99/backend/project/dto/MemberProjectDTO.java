@@ -8,8 +8,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class MemberProjectDTO {
 
-        private Long memberId;    // 제목
+        private Long memberId;
 
-        private Long projectId; // 설명
+        private Long projectId;
 
 }

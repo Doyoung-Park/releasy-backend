@@ -13,6 +13,7 @@ import net.minidev.json.annotate.JsonIgnore;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -25,7 +26,7 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 @Table(name = "Members")
-public class Member {
+public class Member implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -84,10 +85,10 @@ public class Member {
     @JoinColumn(name = "group_id")
     private Group group;
 
-    @OneToMany(mappedBy = "member", fetch = FetchType.LAZY)
-    @JsonBackReference
-    @JsonIgnore
-    private List<ReleaseNote> releaseNoteList;
+//    @OneToMany(mappedBy = "member", fetch = FetchType.LAZY)
+//    @JsonBackReference
+//    @JsonIgnore
+//    private List<ReleaseNote> releaseNoteList;
     public Member updateOAuth(String email, String username) {
         this.email = email;
         this.username = username;

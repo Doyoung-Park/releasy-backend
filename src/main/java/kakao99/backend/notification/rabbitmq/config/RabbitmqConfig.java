@@ -29,29 +29,30 @@ public class RabbitmqConfig {
     @Value("${spring.rabbitmq.port}")
     private int port;
 
-//    @Value("${rabbitmq.queue.name}")
-//    private String queueName;
-//
-//    @Value("${rabbitmq.exchange.name}")
-//    private String exchangeName;
-//
-//    @Value("${rabbitmq.routing.key}")
-//    private String routingKey;
+    @Value("${rabbitmq.queue.name}")
+    private String queue;
+
+    @Value("${rabbitmq.exchange.name}")
+    private String exchangeName;
+
+    @Value("${rabbitmq.routing.key}")
+    private String routingKey;
 
 
     @Bean
     Queue queue() {
-        return new Queue("hello",false);
+//        return new Queue("notification",false);
+        return new Queue(queue,false);
     }
 
     @Bean
     DirectExchange directExchange() {
-        return new DirectExchange("hello.exchange");
+        return new DirectExchange(exchangeName);
     }
 
     @Bean
     Binding binding(DirectExchange directExchange, Queue queue) {
-        return BindingBuilder.bind(queue).to(directExchange).with("hello.key");
+        return BindingBuilder.bind(queue).to(directExchange).with(routingKey);
     }
 
     @Bean

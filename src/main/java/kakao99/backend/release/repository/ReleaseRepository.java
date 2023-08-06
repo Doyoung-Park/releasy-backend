@@ -1,5 +1,6 @@
 package kakao99.backend.release.repository;
 
+import kakao99.backend.entity.Project;
 import kakao99.backend.entity.ReleaseNote;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -18,7 +19,10 @@ public interface ReleaseRepository extends JpaRepository<ReleaseNote, Long> {
     ReleaseNote save(ReleaseNote releaseNote);
     // 생성, 수정
 
-    ReleaseNote findReleaseNoteById(Long releaseNoteId);
+    ReleaseNote findByVersionAndProject(String parentVersion, Project project);
+    @Query("SELECT rn FROM ReleaseNote rn WHERE rn.project.id = :projectId AND rn.id NOT IN (SELECT rpc.childNote.id FROM ReleaseNoteParentChild rpc)")
+    List<ReleaseNote> findRootNodesByProjectId(@Param("projectId") Long projectId);
+
 
     List<ReleaseNote> findByProjectIdAndIsActiveTrue(Long id);
     // 각 프로젝트 대시보드에서 해당 프로젝트에 해당하는 릴리즈 노트 목록 가져오기

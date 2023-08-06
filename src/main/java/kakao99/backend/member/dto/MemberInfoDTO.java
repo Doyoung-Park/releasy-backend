@@ -15,6 +15,7 @@ public class MemberInfoDTO {
     private String name;
     private String nickname;
     private String email;
+    private String status;
     private String groupName;
     private String position;
     private String introduce;

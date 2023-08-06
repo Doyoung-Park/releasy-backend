@@ -10,6 +10,7 @@ import kakao99.backend.release.dto.CreateReleaseDTO;
 import kakao99.backend.release.dto.GetReleaseDTO;
 import kakao99.backend.release.dto.GetReleaseListDTO;
 import kakao99.backend.release.dto.UpdateReleaseDTO;
+import kakao99.backend.release.service.NoteTreeService;
 import kakao99.backend.release.service.ReleaseService;
 import kakao99.backend.common.ResponseMessage;
 import lombok.RequiredArgsConstructor;
@@ -31,9 +32,11 @@ public class ReleaseController {
     private final MemberRepository memberRepository;
     private final ProjectRepository projectRepository;
 
+    private final NoteTreeService noteTreeService;
+
     @PostMapping("/api/release/create")
     @ResponseBody
-    public ResponseEntity<ResponseMessage> createRelease(Authentication authentication, @RequestBody CreateReleaseDTO createReleaseDTO) {
+    public ResponseEntity<ResponseMessage> createReleaseNote(Authentication authentication, @RequestBody CreateReleaseDTO createReleaseDTO) {
 
         // member와 project를 조회
         Member member = (Member) authentication.getPrincipal();
@@ -60,7 +63,7 @@ public class ReleaseController {
 
     @PutMapping("/api/release/update")
     @ResponseBody
-    public ResponseEntity<ResponseMessage> updateRelease(
+    public ResponseEntity<ResponseMessage> updateReleaseNote(
             @RequestBody UpdateReleaseDTO updateReleaseDTO) {
         Optional<ReleaseNote> findReleaseNote = releaseService.getReleaseInfo(updateReleaseDTO.getReleaseId());
 
@@ -69,8 +72,7 @@ public class ReleaseController {
             return new ResponseEntity<>(message, HttpStatus.NOT_FOUND);
         }
 
-        releaseService.updateRelease(updateReleaseDTO.getReleaseId(), updateReleaseDTO.getVersion(), updateReleaseDTO.getStatus(),
-                updateReleaseDTO.getPercent(), updateReleaseDTO.getReleaseDate(), updateReleaseDTO.getBrief(), updateReleaseDTO.getDescription());
+        releaseService.updateRelease(updateReleaseDTO);
 
         releaseService.updateIssues(updateReleaseDTO.getReleaseId(), updateReleaseDTO.getIssueList());
 
@@ -150,6 +152,14 @@ public class ReleaseController {
         return new ResponseEntity<>(message, HttpStatus.OK);
     }
 
+
+    @GetMapping("/api/{projectId}/releases/tree")
+    public ResponseEntity<ResponseMessage> getTree(@PathVariable("projectId") Long projectId){
+        noteTreeService.getTreesForProject(projectId);
+
+        ResponseMessage message = new ResponseMessage(200, "트리 생성 완료", noteTreeService.getTreesForProject(projectId));
+        return new ResponseEntity<>(message, HttpStatus.OK);
+    }
 }
 
 

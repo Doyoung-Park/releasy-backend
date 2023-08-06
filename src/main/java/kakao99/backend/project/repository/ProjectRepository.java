@@ -22,6 +22,7 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
 
     Optional<Project> findById(Long id);
 
+    Project findProjectById(Long projectId);
 
     List<Project> findAll();
 
