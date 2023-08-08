@@ -39,6 +39,7 @@ public class ReleaseService {
                 .releaseDate(createReleaseDTO.getReleaseDate())
                 .brief(createReleaseDTO.getBrief())
                 .description(createReleaseDTO.getDescription())
+
                 .isActive(true)
                 .member(member)
                 .project(project)
@@ -162,6 +163,7 @@ public class ReleaseService {
         }
 
         return;
+
     }
 
     @Transactional

@@ -35,10 +35,12 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+
 import java.time.*;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+
 import java.util.stream.Collectors;
 
 @Service
@@ -66,6 +68,7 @@ public class IssueService {
 
 
     private final IssueParentChildRepository issueParentChildRepository;
+
 
     @Transactional
     public Issue createNewIssue(Member member, IssueForm issueForm, Long projectId) {
@@ -114,6 +117,7 @@ public class IssueService {
     public List<Issue> getIssuesWithMemo(Long projectId) {
         return issueRepository.findAllByProjectId(projectId);
     }
+
 
 
     public boolean isChildIssue(Issue issue) {
@@ -167,6 +171,7 @@ public class IssueService {
             }
             List<IssueDTO> issueDTOListFromIssueList = IssueDTO.getIssueDTOListFromIssueList(issueListIncludedInReleaseNote);
             return issueDTOListFromIssueList;
+
         }
 
 
@@ -335,6 +340,7 @@ public class IssueService {
         }
 
         return result;
+
     }
 
     @Transactional

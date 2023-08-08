@@ -21,8 +21,10 @@ import kakao99.backend.project.repository.ProjectRepository;
 import kakao99.backend.common.ResponseMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
 import net.minidev.json.JSONObject;
 import org.apache.tomcat.util.json.JSONParser;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -142,20 +144,25 @@ public class IssueController {
 
     // releaseNote id로 모든 이슈 조회
     @GetMapping("/api/releaseNote/{releaseNoteId}/issues")
+
     public ResponseEntity<?> getIssueListIncludedInReleaseNote(@PathVariable("releaseNoteId") Long releaseNoteId) {
 
         List<IssueDTO> allIssuesByReleaseNoteId = issueService.getIssueListIncludedInReleaseNote(releaseNoteId);
+
         ResponseMessage message = new ResponseMessage(200, "릴리즈 노트의 관련된 이슈 조회 성공", allIssuesByReleaseNoteId);
         return new ResponseEntity(message, HttpStatus.OK);
     }
+
 
     @GetMapping("/api/project/{projectId}/issues")
     public ResponseEntity<?> getIssueListNotIncludedInReleaseNote(@PathVariable("projectId") Long projectId) {
 
         List<IssueDTO> allByNotReleaseNoteId = issueService.getIssueListNotIncludedInReleaseNote(projectId);
+
         ResponseMessage message = new ResponseMessage(200, "릴리즈 노트에 포함되지 않은 이슈 조회 성공", allByNotReleaseNoteId);
         return new ResponseEntity(message, HttpStatus.OK);
     }
+
 
 
 
@@ -235,6 +242,7 @@ public class IssueController {
 
     @DeleteMapping("/api/issue/{issueId}")
     public ResponseEntity<?> deleteIssue(Authentication authentication, @PathVariable("issueId") Long issueId) {
+
 
         Member member = (Member) authentication.getPrincipal();
 
