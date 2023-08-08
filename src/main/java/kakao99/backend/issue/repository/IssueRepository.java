@@ -16,6 +16,7 @@ import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -114,5 +115,7 @@ public interface IssueRepository extends JpaRepository<Issue, Long>, IssueReposi
 
 
     List<Long> findExcludeId(Long projectId, Long excludeId);
+
+    void saveIssueImage(Long issueId, ArrayList<String> imgUrlList);
 
 }

@@ -2,9 +2,8 @@ package kakao99.backend.member.service;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
-import org.springframework.core.io.FileSystemResource;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.ResourceLoader;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.*;
 import kakao99.backend.common.exception.CustomException;
 import kakao99.backend.entity.Group;
 import kakao99.backend.entity.Member;
@@ -18,21 +17,21 @@ import kakao99.backend.project.repository.MemberProjectRepository;
 import kakao99.backend.common.ResponseMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.FileCopyUtils;
 import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.client.HttpServerErrorException;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
+
 import java.io.*;
+import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -49,6 +48,12 @@ public class MemberService {
     private final MemberProjectRepository memberProjectRepository;
     private final RedisTemplate<String, String> redisTemplate;
     private static final  String absolutePath = "C:\\Users\\USER\\Desktop\\releasy_be\\BackEnd\\src\\main\\resources\\static\\";
+
+    @Value("${kakao.i.cloud.access.token}")
+    private String kakaoICloudAccessToken;
+
+    @Value("${kakao.i.cloud.project.id}")
+    private String projectID;
     @Transactional
     public Long create(RegisterDTO registerDTO) {
 
@@ -321,20 +326,50 @@ public class MemberService {
         return new ResponseEntity<>(message, HttpStatus.OK);
     }
 
-    public void saveImage(Authentication authentication, MultipartFile profileImg){
+    public void saveImage(Authentication authentication, MultipartFile profileImg) {
         Member member = (Member) authentication.getPrincipal();
         String fileName = String.valueOf(member.getId());
         System.out.println(profileImg.getOriginalFilename());
         System.out.println("Received image: " + fileName);
         try {
-             // Replace this with your desired absolute path
-            String filePath = absolutePath + fileName + ".jpg";
 
-            File file = new File(filePath);
+            // Set the endpoint URL for object storage and the HTTP method (PUT)
+            String endpointUrl = "https://objectstorage.kr-gov-central-1.kakaoicloud-kr-gov.com/v1/" + projectID + "/" + "releasy" + "/profile/" + fileName;
 
-            profileImg.transferTo(file);
+            // Set the access token in the request header
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("X-Auth-Token", kakaoICloudAccessToken);
+
+            // Set the Content-Type header based on the file type
+            headers.setContentType(MediaType.IMAGE_JPEG);
+
+            // Get the image data from the MultipartFile without saving it to a file
+            byte[] imageData = profileImg.getBytes();
+
+            // Set the Content-Length header with the image data length
+            headers.setContentLength(imageData.length);
+
+            // Create the HTTP entity with headers and the image data
+            HttpEntity<byte[]> requestEntity = new HttpEntity<>(imageData, headers);
+
+            // Send the HTTP PUT request to upload the image to object storage
+            RestTemplate restTemplate = new RestTemplate();
+            ResponseEntity<String> response = restTemplate.exchange(endpointUrl, HttpMethod.PUT, requestEntity, String.class);
+
+            // Handle the response, e.g., check the status code, etc.
+            if (response.getStatusCode().is2xxSuccessful()) {
+                System.out.println("Image uploaded successfully!");
+            } else {
+                System.out.println("Image upload failed! Status code: " + response.getStatusCodeValue());
+            }
+        } catch (HttpServerErrorException e) {
+            // 서버에서 발생한 500 Internal Server Error를 처리
+            System.out.println("Internal Server Error occurred! Status code: " + e.getRawStatusCode());
+            // 오류 메시지를 로깅 또는 사용자에게 알림으로 전달하는 로직 추가
+            System.out.println("Error Response Body: " + e.getResponseBodyAsString());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
+
 }

@@ -156,7 +156,7 @@ public class MemberController {
     public ResponseEntity<ResponseMessage> uploadImage(Authentication authentication, @RequestPart("profileImg") MultipartFile profileImg) {
         memberService.saveImage(authentication, profileImg);
 
-        ResponseMessage message = new ResponseMessage(200, "이미지 저장 성공.");
+        ResponseMessage message = new ResponseMessage(200, "프로필 이미지를 저장했습니다.");
         return new ResponseEntity<>(message, HttpStatus.OK);
     }
 

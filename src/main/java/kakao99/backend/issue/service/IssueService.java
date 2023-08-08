@@ -25,11 +25,16 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.Resource;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.*;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 
 import java.time.*;
 import java.time.LocalDate;
@@ -53,6 +58,12 @@ public class IssueService {
     @Value("${chatGptSecretKey}")
     private String chatGptSecretKey;
 
+    @Value("${kakao.i.cloud.access.token}")
+    private String kakaoICloudAccessToken;
+
+    @Value("${kakao.i.cloud.project.id}")
+    private String projectID;
+
     private final MessageService messageService;
 
 
@@ -62,6 +73,7 @@ public class IssueService {
     @Transactional
     public Issue createNewIssue(Member member, IssueForm issueForm, Long projectId) {
         Optional<Project> projectById = projectRepository.findById(projectId);
+        Optional<Member> memberByName = memberRepository.findByUsername(issueForm.getMemberInCharge());
         if (projectById.isEmpty()) {
             throw new NoSuchElementException("해당 projectId 해당하는 프로젝트 데이터 없음.");
         }
@@ -80,7 +92,7 @@ public class IssueService {
                 .issueType(issueForm.getType())
                 .description(issueForm.getDescription())
                 .memberReport(member)
-                .memberInCharge(member)
+                .memberInCharge(memberByName.get())
                 .status("backlog")
                 .issueNum(newIssueNum)
                 .project(project)
@@ -272,7 +284,7 @@ public class IssueService {
             QuestionList += "id:"+GptQuestion.getId()+ "- question: "+GptQuestion.getQuestion()+", ";
         }
 
-        QuestionList +=" 너가 이 작업들의 중요도를 임의로 0과 100 사이의 숫자로 정하고, 그 값만 딱 알려줘. 답변은 무조건 다른 말 아무것도 없이 json형식으로 표시해줘. json 형식은 {id값: 중요도값, } 으로 정해서 표시해줘.";
+        QuestionList +=" 주어진 모든 작업들의 중요도를 임의로 10과 100 사이의 숫자로 정하고, 그 값만 딱 알려줘. 답변은 무조건 다른 말 아무것도 없이 json형식으로 표시해줘. json 형식은 {id값: 중요도값, } 으로 정해서 표시해줘.";
 
         String requestBody = "{\"model\": \"gpt-3.5-turbo\", \"messages\": [{\"role\": \"system\", \"content\": \"You are a helpful assistant.\"}, {\"role\": \"user\", \"content\": " +
                 "\"" + QuestionList + "\"}]}";
@@ -330,4 +342,70 @@ public class IssueService {
         return result;
 
     }
+
+    @Transactional
+    public void saveImageAboutIssue(List<MultipartFile> files) throws IOException {
+
+        Long issueId = 2L;
+        ArrayList<String> imgUrlList = new ArrayList<>();
+        String imgUrlSample ="/releasy" + "/issue/";
+        String endpointUrl = "https://objectstorage.kr-gov-central-1.kakaoicloud-kr-gov.com/v1/"+projectID;
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("X-Auth-Token", kakaoICloudAccessToken);
+        RestTemplate restTemplate = new RestTemplate();
+
+        // 전달되어 온 파일이 존재할 경우
+        if(!CollectionUtils.isEmpty(files)) {
+            log.info(String.valueOf(files.size()));
+            // 다중 파일 처리
+            for (MultipartFile file : files) {
+
+//                // 파일의 확장자 추출
+//                String originalFileExtension;
+//                String contentType = file.getContentType();
+//
+//                // 확장자명이 존재하지 않을 경우 처리 x
+//                if (ObjectUtils.isEmpty(contentType)) {
+//                    break;
+//                } else {  // 확장자가 jpeg, png인 파일들만 받아서 처리
+//                    if (contentType.contains("image/jpeg"))
+//                        originalFileExtension = "jpg";
+//                    else if (contentType.contains("image/png"))
+//                        originalFileExtension = "png";
+//                    else  // 다른 확장자일 경우 처리 x
+//                        break;
+//                }
+                String originalFileName = file.getOriginalFilename();
+
+//                // 나노초를 문자열로 변환하여 출력
+//                long nanoTime = System.nanoTime();
+//                String nanoTimeString = String.valueOf(nanoTime);
+//                System.out.println("nanoTimeString = " + nanoTimeString);
+//                System.out.println("Nano Time as String: " + nanoTimeString);
+
+                String uuid = UUID.randomUUID().toString();
+                String newFileName = uuid + "_" + originalFileName;
+//                String newFileName = nanoTimeString + "_" + originalFileName;
+
+                imgUrlSample += newFileName;
+                endpointUrl += imgUrlSample;
+
+                imgUrlList.add(imgUrlSample);
+
+                byte[] imageData = file.getBytes();
+
+                HttpEntity<byte[]> requestEntity = new HttpEntity<>(imageData, headers);
+
+                ResponseEntity<String> response = restTemplate.exchange(endpointUrl, HttpMethod.PUT, requestEntity, String.class);
+                if (response.getStatusCode().is2xxSuccessful()) {
+                    System.out.println("Image uploaded successfully!");
+                } else {
+                    System.out.println("Image upload failed! Status code: " + response.getStatusCodeValue());
+                }
+            }
+            issueRepository.saveIssueImage(issueId, imgUrlList);
+        }
+    }
 }
+

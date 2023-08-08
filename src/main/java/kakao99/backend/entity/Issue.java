@@ -1,6 +1,9 @@
 package kakao99.backend.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -42,6 +45,10 @@ public class Issue {
     private String file; // 첨부 파일
 
     private Integer importance; // 중요도
+
+    private String imgUrl_1;
+    private String imgUrl_2;
+    private String imgUrl_3;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     @Temporal(TemporalType.TIMESTAMP)

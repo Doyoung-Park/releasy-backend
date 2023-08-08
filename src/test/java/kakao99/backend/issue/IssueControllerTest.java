@@ -135,6 +135,7 @@ public class IssueControllerTest {
 
         // then
         result.andExpect(status().isOk());
+
         result.andDo(print());
 
         result.andExpect(jsonPath("$.statusCode").value(200));

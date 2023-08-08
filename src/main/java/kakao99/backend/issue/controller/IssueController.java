@@ -29,7 +29,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
@@ -53,7 +55,7 @@ public class IssueController {
     @PostMapping("/api/project/{projectId}/issue")
         public ResponseEntity<?> createIssue(Authentication authentication, @RequestBody IssueForm issueForm, @PathVariable("projectId") Long projectId) {
         log.info("이슈 생성");
-
+        log.info("asdsadasd={}", issueForm.getType());
         Member member = (Member) authentication.getPrincipal();
 
         issueService.createNewIssue(member, issueForm, projectId);
@@ -282,5 +284,14 @@ public class IssueController {
         ResponseMessage message = new ResponseMessage(200, "잔디 데이터 받아오기.", issueGrassDTOList);
         return new ResponseEntity<>(message, HttpStatus.OK);
     }
-}
 
+    @PostMapping("api/issue/images")
+    public ResponseEntity<?> uploadImageAboutIssue(@RequestPart(value="image", required=false) List<MultipartFile> files ) throws IOException {
+        log.info("이슈 관련 이미지 추가");
+
+        issueService.saveImageAboutIssue(files);
+
+        ResponseMessage message = new ResponseMessage(200, "이미지 첨부 완료");
+        return new ResponseEntity<>(message, HttpStatus.OK);
+    }
+}

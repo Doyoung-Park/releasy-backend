@@ -4,6 +4,7 @@ import kakao99.backend.entity.Issue;
 import kakao99.backend.issue.controller.UpdateIssueForm;
 import kakao99.backend.issue.dto.DragNDropDTO;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public interface IssueRepositoryCustom {
@@ -17,5 +18,7 @@ public interface IssueRepositoryCustom {
     void deleteIssue(Long issueId, Long memberId);
 
     List<Issue> getIssueListNotFinishedOf(Long projectId);
+
+    void saveIssueImage(Long issueId, ArrayList<String> imgUrlList);
 
 }
