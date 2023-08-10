@@ -38,6 +38,10 @@ public class ReleaseNote {
 
     private String description; //세부 설명
 
+    private String imgUrl_1;
+    private String imgUrl_2;
+    private String imgUrl_3;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     @Temporal(TemporalType.TIMESTAMP)
     @CreationTimestamp

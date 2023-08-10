@@ -39,6 +39,7 @@ out/
 ### application.properties
 /src/main/resources/application.properties
 /src/main/resources/application-oauth.properties
+/src/main/resources/application-email.properties
 
 ### DS_Store
 *.DS_Store

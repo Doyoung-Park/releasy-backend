@@ -1,0 +1,70 @@
+{
+  "properties": {
+    "id": {
+      "type": "long"
+    },
+    "issue_num": {
+      "type": "integer"
+    },
+    "title": {
+      "type": "text",
+      "analyzer" : "korean"
+    },
+    "issueType": {
+      "type": "keyword"
+    },
+    "description": {
+      "type": "text"
+    },
+    "status": {
+      "type": "keyword"
+    },
+    "listPosition": {
+      "type": "integer"
+    },
+    "file": {
+      "type": "text"
+    },
+    "importance": {
+      "type": "integer"
+    },
+    "createdAt": {
+      "type": "date",
+      "format": "yyyy-MM-dd'T'HH:mm:ss.SSSZ||epoch_millis"
+    },
+    "updatedAt": {
+      "type": "date",
+      "format": "yyyy-MM-dd'T'HH:mm:ss.SSSZ||epoch_millis"
+    },
+    "deletedAt": {
+      "type": "date",
+      "format": "yyyy-MM-dd'T'HH:mm:ss.SSSZ||epoch_millis"
+    },
+    "isActive": {
+      "type": "boolean"
+    },
+    "memberReport": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "long"
+        },
+        "name": {
+          "type": "text"
+        },
+        "nickname": {
+          "type": "text"
+        },
+        "email": {
+          "type": "keyword"
+        },
+        "position": {
+          "type": "keyword"
+        },
+        "role": {
+          "type": "keyword"
+        }
+      }
+    }
+  }
+}

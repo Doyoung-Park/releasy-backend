@@ -1,0 +1,238 @@
+[33mcommit 6cbad18df905c941852cd13f3161d752978a2fa9[m[33m ([m[1;36mHEAD -> [m[1;32mdevelop[m[33m)[m
+Author: jedo0224 <qkrwotjr0@gmail.com>
+Date:   Mon Aug 7 11:12:55 2023 +0900
+
+    웹 소켓 보류
+
+[33mcommit fd178b5a2d05b1b91a9068a1d76370ae6afe6103[m[33m ([m[1;32mwebsocket[m[33m)[m
+Merge: 601ac79 75d9ce5
+Author: Doyoung <87432327+Doyoung-Park@users.noreply.github.com>
+Date:   Sat Aug 5 16:34:58 2023 +0900
+
+    Merge pull request #112 from KEA-ReleaseNoteSystem/feature/REL-107
+    
+    [fix] 이슈 생성시 발생하는 에러 수정
+
+[33mcommit 75d9ce50cc9b6aea3059ccf54a5f93bab9683bf3[m
+Author: Doyoung <doodoo55@gachon.ac.kr>
+Date:   Sat Aug 5 16:31:46 2023 +0900
+
+    [fix] 이슈 생성시 발생하는 에러 수정
+
+[33mcommit 601ac796d27988cd900c81fd57e51525949aa419[m[33m ([m[1;32mfeature/REL-60[m[33m)[m
+Merge: 1c7e8aa 597085a
+Author: Haebin AHN <103311941+HaebinAHN@users.noreply.github.com>
+Date:   Fri Aug 4 14:09:13 2023 +0900
+
+    Merge pull request #111 from KEA-ReleaseNoteSystem/feature/REL-104
+    
+    [fix] notification axios get 시 알림 생성 일자도 전송되게 추가
+
+[33mcommit 597085a4e99dbb8f4cb902af78d09dd8868be859[m
+Author: Haebin Ahn <gnh06280@naver.com>
+Date:   Fri Aug 4 14:08:42 2023 +0900
+
+    [fix] notification axios get 시 알림 생성 일자도 전송되게 추가
+
+[33mcommit 1c7e8aa2780947773706411bff664331786da5f7[m
+Merge: 3dad619 1287863
+Author: Jedo0224 <90050514+Jedo0224@users.noreply.github.com>
+Date:   Fri Aug 4 14:02:21 2023 +0900
+
+    Merge pull request #110 from KEA-ReleaseNoteSystem/feature/REL-60
+    
+    [feat] 릴리즈 노트 트리 매핑기능 추가
+
+[33mcommit 1287863d1eebdea6796df30f1dee62ca0b8e903f[m[33m ([m[1;31morigin/feature/REL-60[m[33m)[m
+Author: jedo0224 <qkrwotjr0@gmail.com>
+Date:   Fri Aug 4 14:01:32 2023 +0900
+
+    [feat] 릴리즈 노트 트리 매핑기능 추가
+
+[33mcommit f2ea4e8823bef013bd5093f06d24d03326912f99[m
+Merge: b7b6b1e 3dad619
+Author: jedo0224 <qkrwotjr0@gmail.com>
+Date:   Fri Aug 4 13:56:27 2023 +0900
+
+    Merge branch 'develop' of https://github.com/KEA-ReleaseNoteSystem/BackEnd into feature/REL-60
+
+[33mcommit 3dad619e7d316a40a42d6e74fb0a5d20ae0479ad[m
+Merge: ed122cc c955ab9
+Author: Doyoung <87432327+Doyoung-Park@users.noreply.github.com>
+Date:   Fri Aug 4 13:34:59 2023 +0900
+
+    Merge pull request #109 from KEA-ReleaseNoteSystem/feature/REL-12
+    
+    [fix] 이슈 수정 시 updatedAt 시간 수정, 이슈 생성 시 issueNum 자동 생성
+
+[33mcommit c955ab9977b3d3774f22d2e58bb45555e4597970[m
+Author: Doyoung <doodoo55@gachon.ac.kr>
+Date:   Fri Aug 4 13:33:18 2023 +0900
+
+    [fix] 이슈 수정 시 updatedAt 시간 수정, 이슈 생성 시 issueNum 자동 생성
+
+[33mcommit b7b6b1e2a10651973db5d0c91f69523da1b96db0[m
+Author: jedo0224 <qkrwotjr0@gmail.com>
+Date:   Fri Aug 4 13:10:42 2023 +0900
+
+    fix
+
+[33mcommit ed122cc2aed5c64d60f4db04f12054a6f50bd7d3[m
+Merge: 4b3aa0f 446feb2
+Author: Ji Won Seo <88332913+manips1@users.noreply.github.com>
+Date:   Fri Aug 4 12:58:51 2023 +0900
+
+    Merge pull request #108 from KEA-ReleaseNoteSystem/feature/REL-99
+    
+    [feat] 프로필 이미지 저장 API
+
+[33mcommit 446feb2e6c9abdd07dcf1e0de5b308be3271d332[m[33m ([m[1;31morigin/feature/REL-99[m[33m)[m
+Author: manips <jwjw6410@gmail.com>
+Date:   Fri Aug 4 12:56:04 2023 +0900
+
+    [feat] 프로필 이미지 저장 API
+
+[33mcommit 6b645e547b97c8d5dbdd79767b8919b92caf992e[m
+Merge: 840f472 4b3aa0f
+Author: jedo0224 <qkrwotjr0@gmail.com>
+Date:   Fri Aug 4 12:34:42 2023 +0900
+
+    Merge branch 'develop' of https://github.com/KEA-ReleaseNoteSystem/BackEnd into feature/REL-60
+
+[33mcommit 4b3aa0f74cb9fda52c41ec9d723cd90f5b3475cf[m[33m ([m[1;31morigin/feature/REL-63[m[33m)[m
+Merge: 587feb7 76c39be
+Author: Doyoung <87432327+Doyoung-Park@users.noreply.github.com>
+Date:   Fri Aug 4 02:44:06 2023 +0900
+
+    Merge pull request #107 from KEA-ReleaseNoteSystem/feature/REL-12
+    
+    Feature/rel 12
+
+[33mcommit 76c39beffbf8c8ff96e73f66877f65c6b9676424[m
+Author: Doyoung <doodoo55@gachon.ac.kr>
+Date:   Fri Aug 4 02:40:52 2023 +0900
+
+    [feat] Notification 완료
+
+[33mcommit 56b8968bf91aa1cee81f71c8864696195bd86150[m
+Author: Doyoung <doodoo55@gachon.ac.kr>
+Date:   Thu Aug 3 23:43:40 2023 +0900
+
+    [feat] 이슈 삭제시 notification 생성
+
+[33mcommit 840f472b090e3e3d07efe99a6e797f6bd1f7ccfb[m
+Author: jedo0224 <qkrwotjr0@gmail.com>
+Date:   Thu Aug 3 22:57:08 2023 +0900
+
+    test
+
+[33mcommit d612345762c74c31a5f66c71ba5c66fe40cf914b[m
+Author: Doyoung <doodoo55@gachon.ac.kr>
+Date:   Thu Aug 3 22:37:43 2023 +0900
+
+    [feat] 이슈 생성 notification 완료
+
+[33mcommit 357aba952702e2f6b6fb8c2ef0ecbf4ccaa6991c[m
+Author: Doyoung <doodoo55@gachon.ac.kr>
+Date:   Thu Aug 3 21:11:26 2023 +0900
+
+    [test] 전체 notification 조회 test
+
+[33mcommit 587feb72e4add5f1ae1d931b8589c49b4d8adc35[m
+Merge: 8f853b5 56679f4
+Author: Doyoung <87432327+Doyoung-Park@users.noreply.github.com>
+Date:   Thu Aug 3 16:00:30 2023 +0900
+
+    Merge pull request #106 from KEA-ReleaseNoteSystem/feature/REL-84
+    
+    Feature/rel 84
+
+[33mcommit 56679f4eada984aca4ddf5950d04279ee17cb6da[m
+Merge: 3a78183 8f853b5
+Author: Doyoung <87432327+Doyoung-Park@users.noreply.github.com>
+Date:   Thu Aug 3 15:59:56 2023 +0900
+
+    Merge branch 'develop' into feature/REL-84
+
+[33mcommit 3a781835ab1ae7bcc5d842054f4f49724b6c50bf[m
+Author: Doyoung <doodoo55@gachon.ac.kr>
+Date:   Thu Aug 3 15:39:35 2023 +0900
+
+    [feat] 이슈를 done으로 상태 변경 시 notificiation 생성
+
+[33mcommit 8f853b53d2c28b9147d62c032d50a59e7f4337ab[m[33m ([m[1;31morigin/test[m[33m, [m[1;32mtest[m[33m)[m
+Merge: 4b69602 4596227
+Author: Haebin AHN <103311941+HaebinAHN@users.noreply.github.com>
+Date:   Thu Aug 3 11:41:26 2023 +0900
+
+    Merge pull request #105 from KEA-ReleaseNoteSystem/feature/REL-83
+    
+    [feat] 마이페이지 잔디 구현 완료
+
+[33mcommit 45962272f99da2e58d0bae6b40934aac2dcd7796[m
+Author: Haebin Ahn <gnh06280@naver.com>
+Date:   Thu Aug 3 11:40:21 2023 +0900
+
+    [feat] 마이페이지 잔디 구현 완료
+
+[33mcommit 31c7c5d0f6d4c6ffd327118f15cd70dd112a04c9[m
+Author: Doyoung <doodoo55@gachon.ac.kr>
+Date:   Thu Aug 3 09:45:56 2023 +0900
+
+    [feat] Notification Entity 수정
+
+[33mcommit 4b6960266c213d85aa96697639f4c4bb021e4d2d[m
+Merge: 8804547 f989e46
+Author: Haebin AHN <103311941+HaebinAHN@users.noreply.github.com>
+Date:   Wed Aug 2 13:58:14 2023 +0900
+
+    Merge pull request #104 from KEA-ReleaseNoteSystem/feature/REL-82
+    
+    [feat] GPT로 요청한 이슈 중요도 저장하기
+
+[33mcommit f989e460cafc2d741647c7309c024c83d3ecbd97[m
+Author: Haebin Ahn <gnh06280@naver.com>
+Date:   Wed Aug 2 13:57:34 2023 +0900
+
+    [feat] GPT로 요청한 이슈 중요도 저장하기
+
+[33mcommit 8804547333b5e7e39004b6be411c97e1de66c494[m
+Merge: 6347fc4 9eda219
+Author: Ji Won Seo <88332913+manips1@users.noreply.github.com>
+Date:   Wed Aug 2 11:21:59 2023 +0900
+
+    Merge pull request #103 from KEA-ReleaseNoteSystem/feature/REL-21
+    
+    [feat]유저 온오프라인 API
+
+[33mcommit 9eda219cf5df792374a750f5413c71e207f31871[m[33m ([m[1;31morigin/feature/REL-21[m[33m)[m
+Merge: 5ed9673 6347fc4
+Author: Ji Won Seo <88332913+manips1@users.noreply.github.com>
+Date:   Wed Aug 2 11:19:17 2023 +0900
+
+    Merge branch 'develop' into feature/REL-21
+
+[33mcommit 5ed96739eb20b767c3df88d50bc31748f3d5120a[m
+Author: manips <jwjw6410@gmail.com>
+Date:   Wed Aug 2 11:17:00 2023 +0900
+
+    [feat]유저 온오프라인 API
+
+[33mcommit a45223bce6e1db279ecfe3339cd17e05b45e588b[m
+Author: Doyoung <doodoo55@gachon.ac.kr>
+Date:   Wed Aug 2 03:31:19 2023 +0900
+
+    [test] IssueController-Chatgpt handler method test코드 작성
+
+[33mcommit 6347fc4ee4091da30c21e665228dfb151d68252b[m
+Merge: 5ff56c7 2717bea
+Author: Haebin AHN <103311941+HaebinAHN@users.noreply.github.com>
+Date:   Tue Aug 1 15:30:55 2023 +0900
+
+    Merge pull request #102 from KEA-ReleaseNoteSystem/feature/REL-75
+    
+    [fix] 경험치 조회 및 업데이트 오류 수정
+
+[33mcommit 2717beaca30ddacc164405175d2455d4b9ba7b50[m
+Author: Haebin Ahn <gnh06280@naver.com>
+Date:   Tue Aug 1 15:3

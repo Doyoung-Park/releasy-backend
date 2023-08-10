@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface ReleaseRepository extends JpaRepository<ReleaseNote, Long> {
+public interface ReleaseRepository extends JpaRepository<ReleaseNote, Long>, ReleaseRepositoryCustom{
 
     ReleaseNote save(ReleaseNote releaseNote);
     // 생성, 수정

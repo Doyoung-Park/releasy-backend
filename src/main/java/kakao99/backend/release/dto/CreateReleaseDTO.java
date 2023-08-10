@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Date;
 import java.util.List;
@@ -14,13 +15,13 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class CreateReleaseDTO {
-    @NotBlank
+//    @NotBlank
     private String version; // 버전
-    @NotBlank
+//    @NotBlank
     private String status;  // 상태
-    @NotBlank
+//    @NotBlank
     private Float percent;  // 진행률
-    @NotBlank
+//    @NotBlank
     private Date releaseDate;   // 배포일
     private String brief;   //  요약
     private String description; //세부 설명

@@ -1,0 +1,23 @@
+{
+    "properties": {
+      "id": {
+        "type": "long"
+      },
+      "username": {
+        "type": "keyword"
+      },
+      "nickname": {
+        "type": "keyword"
+      },
+      "email": {
+        "type": "keyword"
+      },
+      "position": {
+        "type": "keyword"
+      },
+      "role": {
+        "type": "keyword"
+      }
+    }
+}
+

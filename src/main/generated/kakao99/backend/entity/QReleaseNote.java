@@ -34,6 +34,12 @@ public class QReleaseNote extends EntityPathBase<ReleaseNote> {
 
     public final NumberPath<Long> id = createNumber("id", Long.class);
 
+    public final StringPath imgUrl_1 = createString("imgUrl_1");
+
+    public final StringPath imgUrl_2 = createString("imgUrl_2");
+
+    public final StringPath imgUrl_3 = createString("imgUrl_3");
+
     public final BooleanPath isActive = createBoolean("isActive");
 
     public final QMember member;

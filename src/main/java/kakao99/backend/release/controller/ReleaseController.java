@@ -1,5 +1,6 @@
 package kakao99.backend.release.controller;
 
+import kakao99.backend.common.exception.CustomException;
 import kakao99.backend.entity.Member;
 import kakao99.backend.entity.Project;
 import kakao99.backend.entity.ReleaseNote;
@@ -15,11 +16,15 @@ import kakao99.backend.release.service.ReleaseService;
 import kakao99.backend.common.ResponseMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.sql.SQLOutput;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -34,31 +39,44 @@ public class ReleaseController {
 
     private final NoteTreeService noteTreeService;
 
-    @PostMapping("/api/release/create")
+    @PostMapping(value = "/api/release/create")
     @ResponseBody
-    public ResponseEntity<ResponseMessage> createReleaseNote(Authentication authentication, @RequestBody CreateReleaseDTO createReleaseDTO) {
-
-        // member와 project를 조회
+    public ResponseEntity<ResponseMessage> createReleaseNote(Authentication authentication, @RequestPart(value = "jsonData") CreateReleaseDTO createReleaseDTO,
+                                                             @RequestPart(value="image", required=false) List<MultipartFile> files) throws IOException {
+        log.info("릴리즈 노트 생성 요청");
+        ReleaseNote releaseNote = null;
         Member member = (Member) authentication.getPrincipal();
         Optional<Project> project = projectRepository.findById(createReleaseDTO.getProjectId());
-
         if (project.isEmpty()) {
             ResponseMessage message = new ResponseMessage(204, "멤버 또는 프로젝트를 찾을 수 없습니다.", null);
             return new ResponseEntity<>(message, HttpStatus.NOT_FOUND);
         }
-        ReleaseNote releaseNote = releaseService.createRelease(createReleaseDTO, member, project.get());
+
+        if (files == null) {
+            log.info("전송받은 사진 개수: 0개");
+            releaseNote = releaseService.createReleaseWithoutImages(createReleaseDTO, member, project.get());
+        }else{
+            log.info("전송 받은 사진 개수 = " + files.toArray().length);
+            if (files.toArray().length > 3) {
+                log.warn("전송 받은 사진 개수가 3개 이상. Exception! ");
+                throw new CustomException(999, "사진 데이터는 최대 3개까지만 가능합니다.");
+            }
+            releaseNote = releaseService.createReleaseWithImages(createReleaseDTO, member, project.get(), files);
+        }
 
         if (releaseNote == null) {
+            log.info("릴리즈 노트 생성 실패");
             ResponseMessage message = new ResponseMessage(500, "릴리즈 생성에 실패했습니다.", null);
             return new ResponseEntity<>(message, HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
-        Long newId = releaseNote.getId();
+        Long newReleaseNoteId = releaseNote.getId();
 
-        releaseService.updateIssues(newId, createReleaseDTO.getIssueList());
-
+        releaseService.updateIssues(newReleaseNoteId, createReleaseDTO.getIssueList());
+        log.info("릴리즈 노트 생성 완료");
         ResponseMessage message = new ResponseMessage(200, "릴리즈 생성 완료", releaseNote);
         return new ResponseEntity<>(message, HttpStatus.OK);
+
     }
 
     @PutMapping("/api/release/update")
