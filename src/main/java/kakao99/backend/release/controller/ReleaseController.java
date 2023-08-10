@@ -176,6 +176,7 @@ public class ReleaseController {
         noteTreeService.getTreesForProject(projectId);
 
         ResponseMessage message = new ResponseMessage(200, "트리 생성 완료", noteTreeService.getTreesForProject(projectId));
+
         return new ResponseEntity<>(message, HttpStatus.OK);
     }
 }

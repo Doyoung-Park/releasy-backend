@@ -115,7 +115,9 @@ public interface IssueRepository extends JpaRepository<Issue, Long>, IssueReposi
 
     List<Issue> findWithoutExcludeId(Long projectId,  List<Long> excludeIdList);
 
+
     List<Long> findExcludeId(Long projectId, Long excludeId);
 
     void saveIssueImage(Long issueId, ArrayList<String> imgUrlList);
+
 }
