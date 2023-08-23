@@ -10,4 +10,6 @@ import java.util.ArrayList;
 public interface ReleaseRepositoryCustom {
 
     ReleaseNote createReleaseNoteWithImage(CreateReleaseDTO createReleaseDTO, Member member, Project project, ArrayList<String> imgUrlList);
+
+    void updateReleaseNoteImage(Long releaseNoteId, ArrayList<String> imgUrlList);
 }

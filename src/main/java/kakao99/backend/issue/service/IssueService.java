@@ -74,9 +74,14 @@ public class IssueService {
 
 
     @Transactional
-    public Issue createNewIssue(Member member, IssueForm issueForm, Long projectId) {
+    public Issue createNewIssue(Member member, IssueForm issueForm, Long projectId, List<MultipartFile> files) throws IOException {
         Optional<Project> projectById = projectRepository.findById(projectId);
-        Optional<Member> memberByName = memberRepository.findByUsername(issueForm.getMemberInCharge());
+        System.out.println("projectById.get() = " + projectById.get());
+
+        Optional<Member> memberById = memberRepository.findById(issueForm.getMemberInChargeId());
+        System.out.println("memberById = " + memberById.get());
+
+
         if (projectById.isEmpty()) {
             throw new NoSuchElementException("해당 projectId 해당하는 프로젝트 데이터 없음.");
         }
@@ -96,14 +101,16 @@ public class IssueService {
                 .issueType(issueForm.getType())
                 .description(issueForm.getDescription())
                 .memberReport(member)
-                .memberInCharge(memberByName.get())
+                .memberInCharge(memberById.get())
                 .status("backlog")
                 .issueNum(newIssueNum)
                 .project(project)
                 .isActive(true)
                 .build();
 
-        issueRepository.save(newIssue);
+        Issue savedIssue = issueRepository.save(newIssue);
+        //
+        this.saveImageAboutIssue(savedIssue.getId(), files);
 
         RequestMessageDTO requestMessageDTO = new RequestMessageDTO().builder()
                 .type(NotificationType.ISSUECREATED)
@@ -205,7 +212,7 @@ public class IssueService {
     }
 
     @Transactional
-    public Long deleteIssue(Long issueId, Member member) {
+    public Long deleteIssue(Long issueId, Member member)  {
         Optional<Issue> issueByIssueId = issueRepository.findById(issueId);
         if (issueByIssueId.isEmpty()) {
             throw new CustomException(404, issueByIssueId + "번 이슈가 존재하지 않습니다.");
@@ -241,7 +248,7 @@ public class IssueService {
 
 
     @Transactional
-    public void updateIssueByDragNDrop(DragNDropDTO dragNDropDTO, Long userId) {
+    public void updateIssueByDragNDrop(DragNDropDTO dragNDropDTO, Long userId)  {
         issueRepository.updateIssueByDragNDrop(dragNDropDTO);
         Optional<Member> optionalMember = memberRepository.findById(userId);
         if (optionalMember.isEmpty()) {
@@ -352,18 +359,23 @@ public class IssueService {
 
 //        Long issueId = issueId;
         ArrayList<String> imgUrlList = new ArrayList<>();
-        String imgUrlSample ="/releasy" + "/issue/";
-        String endpointUrl = kicObjectStorageUrl+KicProjectID;
 
         HttpHeaders headers = new HttpHeaders();
         headers.set("X-Auth-Token", kakaoICloudAccessToken);
+        headers.setContentType(MediaType.IMAGE_JPEG);
         RestTemplate restTemplate = new RestTemplate();
+
+        if (files == null) {
+            issueRepository.saveIssueImage(issueId, imgUrlList);
+        }
 
         // 전달되어 온 파일이 존재할 경우
         if(!CollectionUtils.isEmpty(files)) {
             log.info(String.valueOf(files.size()));
             // 다중 파일 처리
             for (MultipartFile file : files) {
+                String endpointUrl = kicObjectStorageUrl+KicProjectID;
+                String imgUrlSample ="/releasy" + "/issue/";
 
 //                // 파일의 확장자 추출
 //                String originalFileExtension;
@@ -380,7 +392,7 @@ public class IssueService {
 //                    else  // 다른 확장자일 경우 처리 x
 //                        break;
 //                }
-                String originalFileName = file.getOriginalFilename();
+//                String originalFileName = file.getOriginalFilename();
 
 //                // 나노초를 문자열로 변환하여 출력
 //                long nanoTime = System.nanoTime();
@@ -389,7 +401,7 @@ public class IssueService {
 //                System.out.println("Nano Time as String: " + nanoTimeString);
 
                 String uuid = UUID.randomUUID().toString();
-                String newFileName = uuid + "_" + originalFileName;
+                String newFileName = uuid + "_" + "index.jpeg";
 //                String newFileName = nanoTimeString + "_" + originalFileName;
 
                 imgUrlSample += newFileName;

@@ -12,7 +12,7 @@ import java.util.List;
 public interface IssueSearchRepository extends ElasticsearchRepository<IssueDocument, Long>{
 
     //IssueDocument save(IssueDocument document);
-    List<IssueDocument> findIssueDocumentByTitleContaining(String title);
+    List<IssueDocument> findIssueDocumentByProjectIdAndTitleContaining(Long projectId,String title);
     //List<MemberDocument> findMemberDocumentByProjectId(Long id);
 
 }

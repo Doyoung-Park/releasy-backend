@@ -34,9 +34,9 @@ public class IssueSearchService {
     private final MemberRepository memberRepository;
 
     @Transactional
-    public List<IssueSearchDTO> issueSearch(String title) {
+    public List<IssueSearchDTO> issueSearch(Long projectId, String title) {
 
-        List<IssueDocument> issueDocumentByTitle = issueSearchRepository.findIssueDocumentByTitleContaining(title);
+        List<IssueDocument> issueDocumentByTitle = issueSearchRepository.findIssueDocumentByProjectIdAndTitleContaining(projectId,title);
         //return issueSearchRepository.findIssueDocumentByTitle(title);
 
 

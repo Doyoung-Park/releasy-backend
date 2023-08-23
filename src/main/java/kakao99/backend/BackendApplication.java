@@ -10,9 +10,6 @@ import org.springframework.context.annotation.FilterType;
 import org.springframework.data.elasticsearch.repository.config.EnableElasticsearchRepositories;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
-import org.springframework.session.data.redis.config.annotation.web.http.EnableRedisHttpSession;
-
-
 
 @SpringBootApplication
 @EnableElasticsearchRepositories(

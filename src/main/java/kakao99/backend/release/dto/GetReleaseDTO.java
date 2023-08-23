@@ -28,6 +28,11 @@ public class GetReleaseDTO {
     private Date createdAt; // 생성일
     private String brief;   //  요약
     private String description; //세부 설명
+
+    private String imgUrl_1;
+    private String imgUrl_2;
+    private String imgUrl_3;
+
     @NotBlank
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private Member member; // 작성자

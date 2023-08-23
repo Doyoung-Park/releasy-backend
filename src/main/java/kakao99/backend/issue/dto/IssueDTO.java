@@ -41,6 +41,9 @@ public class IssueDTO {
     private String releasenote;
     private List<IssueChildDTO> childIssue;
     private List<IssueChildDTO> parentIssue;
+    private String imgUrl_1;
+    private String imgUrl_2;
+    private String imgUrl_3;
 
     private boolean isChild;
 
@@ -65,6 +68,9 @@ public class IssueDTO {
                     .file(issue.getFile())
                     .createdAt(issue.getCreatedAt())
                     .updatedAt(issue.getUpdatedAt())
+                    .imgUrl_1(issue.getImgUrl_1())
+                    .imgUrl_2(issue.getImgUrl_2())
+                    .imgUrl_3(issue.getImgUrl_3())
                     .memberIdInCharge(MemberInfoDTO.builder()
                             .name(issue.getMemberInCharge().getUsername())
                             .nickname(issue.getMemberInCharge().getNickname())
@@ -104,6 +110,9 @@ public class IssueDTO {
                 .createdAt(issue.getCreatedAt())
                 .updatedAt(issue.getUpdatedAt())
                 .listPosition(issue.getListPosition())
+                .imgUrl_1(issue.getImgUrl_1())
+                .imgUrl_2(issue.getImgUrl_2())
+                .imgUrl_3(issue.getImgUrl_3())
                 .memberIdInCharge(MemberInfoDTO.builder()
                         .name(issue.getMemberInCharge().getUsername())
                         .nickname(issue.getMemberInCharge().getNickname())

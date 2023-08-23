@@ -14,6 +14,9 @@ import kakao99.backend.release.repository.ReleaseRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -89,23 +92,22 @@ public class ReleaseService {
     @Transactional
     public ReleaseNote createReleaseWithImages(CreateReleaseDTO createReleaseDTO, Member member, Project project, List<MultipartFile> files) throws IOException {
 
-
         ArrayList<String> imgUrlList = new ArrayList<>();
-        String imgUrlSample ="/releasy" + "/releaseNote/";
-        String endpointUrl = kicObjectStorageUrl+ KicProjectID;
 
         HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.IMAGE_JPEG);
         headers.set("X-Auth-Token", kakaoICloudAccessToken);
         RestTemplate restTemplate = new RestTemplate();
 
             // 다중 파일 처리
             for (MultipartFile file : files) {
-
-                String originalFileName = file.getOriginalFilename();
+                String endpointUrl = kicObjectStorageUrl+ KicProjectID;
+                String imgUrlSample ="/releasy" + "/releaseNote/";
+//                String originalFileName = file.getOriginalFilename();
 
                 String uuid = UUID.randomUUID().toString();
-                String newFileName = uuid + "_" + originalFileName;
-
+//                String newFileName = uuid + "_" + originalFileName;
+                String newFileName = uuid + "_" + "index.jpeg";
                 imgUrlSample += newFileName;
                 endpointUrl += imgUrlSample;
 
@@ -242,68 +244,71 @@ public class ReleaseService {
         notificationService.createNotification(requestMessageDTO);
     }
 
-//    @Transactional
-//    public void saveImageAboutReleaseNote(Long projectID, List<MultipartFile> files) throws IOException {
+    @Transactional
+    public void saveImageAboutReleaseNote(Long releaseNoteId, List<MultipartFile> files) throws IOException {
+        ArrayList<String> imgUrlList = new ArrayList<>();
+
+        if (files == null)
+            releaseRepository.updateReleaseNoteImage(releaseNoteId, imgUrlList);
+
+        // 전달되어 온 파일이 존재할 경우
+        if(!CollectionUtils.isEmpty(files)) {
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("X-Auth-Token", kakaoICloudAccessToken);
+            headers.setContentType(MediaType.IMAGE_JPEG);
+            RestTemplate restTemplate = new RestTemplate();
+
+            log.info(String.valueOf(files.size()));
+            // 다중 파일 처리
+            for (MultipartFile file : files) {
+                String endpointUrl = kicObjectStorageUrl+KicProjectID;
+                String imgUrlSample ="/releasy" + "/issue/";
+
+//                // 파일의 확장자 추출
+//                String originalFileExtension;
+//                String contentType = file.getContentType();
 //
-////        Long issueId = issueId;
-//        ArrayList<String> imgUrlList = new ArrayList<>();
-//        String imgUrlSample ="/releasy" + "/issue/";
-//        String endpointUrl = "https://objectstorage.kr-gov-central-1.kakaoicloud-kr-gov.com/v1/"+projectID;
-//
-//        HttpHeaders headers = new HttpHeaders();
-//        headers.set("X-Auth-Token", kakaoICloudAccessToken);
-//        RestTemplate restTemplate = new RestTemplate();
-//
-//        // 전달되어 온 파일이 존재할 경우
-//        if(!CollectionUtils.isEmpty(files)) {
-//            log.info(String.valueOf(files.size()));
-//            // 다중 파일 처리
-//            for (MultipartFile file : files) {
-//
-////                // 파일의 확장자 추출
-////                String originalFileExtension;
-////                String contentType = file.getContentType();
-////
-////                // 확장자명이 존재하지 않을 경우 처리 x
-////                if (ObjectUtils.isEmpty(contentType)) {
-////                    break;
-////                } else {  // 확장자가 jpeg, png인 파일들만 받아서 처리
-////                    if (contentType.contains("image/jpeg"))
-////                        originalFileExtension = "jpg";
-////                    else if (contentType.contains("image/png"))
-////                        originalFileExtension = "png";
-////                    else  // 다른 확장자일 경우 처리 x
-////                        break;
-////                }
-//                String originalFileName = file.getOriginalFilename();
-//
-////                // 나노초를 문자열로 변환하여 출력
-////                long nanoTime = System.nanoTime();
-////                String nanoTimeString = String.valueOf(nanoTime);
-////                System.out.println("nanoTimeString = " + nanoTimeString);
-////                System.out.println("Nano Time as String: " + nanoTimeString);
-//
-//                String uuid = UUID.randomUUID().toString();
-//                String newFileName = uuid + "_" + originalFileName;
-////                String newFileName = nanoTimeString + "_" + originalFileName;
-//
-//                imgUrlSample += newFileName;
-//                endpointUrl += imgUrlSample;
-//
-//                imgUrlList.add(imgUrlSample);
-//
-//                byte[] imageData = file.getBytes();
-//
-//                HttpEntity<byte[]> requestEntity = new HttpEntity<>(imageData, headers);
-//
-//                ResponseEntity<String> response = restTemplate.exchange(endpointUrl, HttpMethod.PUT, requestEntity, String.class);
-//                if (response.getStatusCode().is2xxSuccessful()) {
-//                    System.out.println("Image uploaded successfully!");
-//                } else {
-//                    System.out.println("Image upload failed! Status code: " + response.getStatusCodeValue());
+//                // 확장자명이 존재하지 않을 경우 처리 x
+//                if (ObjectUtils.isEmpty(contentType)) {
+//                    break;
+//                } else {  // 확장자가 jpeg, png인 파일들만 받아서 처리
+//                    if (contentType.contains("image/jpeg"))
+//                        originalFileExtension = "jpg";
+//                    else if (contentType.contains("image/png"))
+//                        originalFileExtension = "png";
+//                    else  // 다른 확장자일 경우 처리 x
+//                        break;
 //                }
-//            }
-//            issueRepository.saveIssueImage(issueId, imgUrlList);
-//        }
-//    }
+//                String originalFileName = file.getOriginalFilename();
+
+//                // 나노초를 문자열로 변환하여 출력
+//                long nanoTime = System.nanoTime();
+//                String nanoTimeString = String.valueOf(nanoTime);
+//                System.out.println("nanoTimeString = " + nanoTimeString);
+//                System.out.println("Nano Time as String: " + nanoTimeString);
+
+                String uuid = UUID.randomUUID().toString();
+                String newFileName = uuid + "_" + "index.jpeg";
+//                String newFileName = nanoTimeString + "_" + originalFileName;
+
+                imgUrlSample += newFileName;
+                endpointUrl += imgUrlSample;
+
+                imgUrlList.add(imgUrlSample);
+
+                byte[] imageData = file.getBytes();
+
+                HttpEntity<byte[]> requestEntity = new HttpEntity<>(imageData, headers);
+
+                ResponseEntity<String> response = restTemplate.exchange(endpointUrl, HttpMethod.PUT, requestEntity, String.class);
+                if (response.getStatusCode().is2xxSuccessful()) {
+                    System.out.println("Image uploaded successfully!");
+                } else {
+                    System.out.println("Image upload failed! Status code: " + response.getStatusCodeValue());
+                }
+            }
+            releaseRepository.updateReleaseNoteImage(releaseNoteId, imgUrlList);
+        }
+    }
+
 }

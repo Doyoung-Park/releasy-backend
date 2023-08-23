@@ -12,6 +12,7 @@ import kakao99.backend.member.dto.Auth2UserInfoDTO;
 import kakao99.backend.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
@@ -25,6 +26,7 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 
 @Slf4j
@@ -35,6 +37,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
     private final TokenProvider tokenProvider;
     private final MemberRepository memberRepository;
     private final ObjectMapper objectMapper;
+    private final RedisTemplate<String, String> redisTemplate;
 
     private String oAuthEmail;
     private String oAuthUserName;
@@ -95,6 +98,9 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         } else {
             Member member = saveOrUpdate(oAuthEmail,oAuthUserName, provider);
             String token = tokenProvider.createAccessToken(member);
+            String key = String.valueOf(member.getId());
+            String value = "On";
+            redisTemplate.opsForValue().set(key, value, 10, TimeUnit.MINUTES);
             response.sendRedirect("http://localhost:3000/social-login?token=" + token);
         }
 

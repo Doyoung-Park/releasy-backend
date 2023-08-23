@@ -2,6 +2,7 @@ package kakao99.backend.project.service;
 
 import jakarta.transaction.Transactional;
 import kakao99.backend.common.exception.CustomException;
+import kakao99.backend.email.EmailServiceImpl;
 import kakao99.backend.entity.Member;
 import kakao99.backend.entity.MemberProject;
 import kakao99.backend.entity.Project;
@@ -30,9 +31,10 @@ public class MemberProjectService {
     private final MemberProjectRepository memberProjectRepository;
     private final MemberRepository memberRepository;
     private final NotificationService notificationService;
+    private final EmailServiceImpl emailService;
 
     @Transactional
-    public ResponseEntity<?> join(MemberProjectDTO memberProjectDTO) {
+    public ResponseEntity<?> join(MemberProjectDTO memberProjectDTO) throws Exception {
 
         Optional<Project> optionalProject = projectRepository.findById(memberProjectDTO.getProjectId());
         Project project = optionalProject.get();
@@ -58,6 +60,7 @@ public class MemberProjectService {
                 .build();
 
         notificationService.createNotification(requestMessageDTO);
+        emailService.sendSimpleMessage(member.getEmail(), project.getName());
 
         ResponseMessage message = new ResponseMessage(200, "프로젝트 새로운 멤버 추가 완료");
         return new ResponseEntity<>(message, HttpStatus.OK);

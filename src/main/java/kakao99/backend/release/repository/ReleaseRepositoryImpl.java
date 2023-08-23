@@ -70,4 +70,33 @@ public class ReleaseRepositoryImpl implements ReleaseRepositoryCustom{
 
         return newReleaseNote;
     }
+
+    public void updateReleaseNoteImage(Long releaseNoteId, ArrayList<String> imgUrlList) {
+        if (imgUrlList.size() == 0) {
+            this.query.update(releaseNote)
+                    .setNull(releaseNote.imgUrl_1)
+                    .setNull(releaseNote.imgUrl_2)
+                    .setNull(releaseNote.imgUrl_3)
+                    .where(releaseNote.id.eq(releaseNoteId)).execute();
+        } else if (imgUrlList.size() == 1) {
+            this.query.update(releaseNote)
+                    .set(releaseNote.imgUrl_1, imgUrlList.get(0))
+                    .setNull(releaseNote.imgUrl_2)
+                    .setNull(releaseNote.imgUrl_3)
+                    .where(releaseNote.id.eq(releaseNoteId)).execute();
+        } else if (imgUrlList.size() == 2) {
+            this.query.update(releaseNote)
+                    .set(releaseNote.imgUrl_1, imgUrlList.get(0))
+                    .set(releaseNote.imgUrl_2, imgUrlList.get(1))
+                    .setNull(releaseNote.imgUrl_3)
+                    .where(releaseNote.id.eq(releaseNoteId)).execute();
+        } else if (imgUrlList.size() == 3) {
+            this.query.update(releaseNote)
+                    .set(releaseNote.imgUrl_1, imgUrlList.get(0))
+                    .set(releaseNote.imgUrl_2, imgUrlList.get(1))
+                    .set(releaseNote.imgUrl_3, imgUrlList.get(2))
+                    .where(releaseNote.id.eq(releaseNoteId)).execute();
+        }
+
+    }
 }

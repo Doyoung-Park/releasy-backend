@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 public class MemberProjectController {
     private final MemberProjectService memberProjectService;
     @PostMapping("/api/project/member")
-    public ResponseEntity<?> joinProject(@RequestBody MemberProjectDTO memberProjectDTO){
+    public ResponseEntity<?> joinProject(@RequestBody MemberProjectDTO memberProjectDTO) throws Exception {
 
         return memberProjectService.join(memberProjectDTO);
     }

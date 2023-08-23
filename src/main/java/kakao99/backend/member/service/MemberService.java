@@ -175,7 +175,7 @@ public class MemberService {
 
         String accessToken = tokenProvider.createAccessToken(member);
         String key = String.valueOf(member.getId());
-        String value = "Online";
+        String value = "On";
         redisTemplate.opsForValue().set(key, value, 10, TimeUnit.MINUTES);
         //ResponseMessage message = new ResponseMessage(200, "로그인이 완료 되었습니다.", accessToken);
         return accessToken;
@@ -245,6 +245,7 @@ public class MemberService {
                 .name(member.getUsername())
                 .nickname(member.getNickname())
                 .email(member.getEmail())
+                .authority(member.getAuthority())
                 .groupCode(member.getGroup().getCode())
                 .groupName(member.getGroup().getName())
                 .position(member.getPosition())

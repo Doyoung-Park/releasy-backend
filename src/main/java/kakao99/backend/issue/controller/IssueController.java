@@ -25,6 +25,7 @@ import kakao99.backend.notification.rabbitmq.dto.RequestMessageDTO;
 import kakao99.backend.notification.service.NotificationService;
 import kakao99.backend.project.repository.ProjectRepository;
 import kakao99.backend.common.ResponseMessage;
+import kakao99.backend.release.dto.CreateReleaseDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -58,14 +59,31 @@ public class IssueController {
     private final IssueSearchService issueSearchService;
     private final NotificationService notificationService;
 
+
+
+    // @RequestBody IssueForm issueForm
     // 이슈 생성
     @PostMapping("/api/project/{projectId}/issue")
-        public ResponseEntity<?> createIssue(Authentication authentication, @RequestBody IssueForm issueForm, @PathVariable("projectId") Long projectId) {
+        public ResponseEntity<?> createIssue(Authentication authentication,  @PathVariable("projectId") Long projectId, @RequestPart(value = "jsonData") IssueForm issueForm,
+                                             @RequestPart(value="image", required=false) List<MultipartFile> files) throws IOException {
         log.info("이슈 생성");
-        log.info("asdsadasd={}", issueForm.getType());
+
+        System.out.println("프로젝트 id: "+ projectId);
+
+        if (files == null) {
+            log.info("전송받은 사진 개수: 0개");
+
+        }else{
+            log.info("전송 받은 사진 개수 = " + files.toArray().length);
+            if (files.toArray().length > 3) {
+                log.warn("전송 받은 사진 개수가 3개 이상. Exception! ");
+                throw new CustomException(999, "사진 데이터는 최대 3개까지만 가능합니다.");
+            }
+        }
+
         Member member = (Member) authentication.getPrincipal();
 
-        issueService.createNewIssue(member, issueForm, projectId);
+        issueService.createNewIssue(member, issueForm, projectId, files);
 
         ResponseMessage message = new ResponseMessage(200, "이슈 생성 성공");
         return new ResponseEntity(message, HttpStatus.OK);
@@ -260,9 +278,9 @@ public class IssueController {
     }
 
 
-    @GetMapping("/api/issues")
-    public ResponseEntity<?> issueSearch(@RequestParam String title) {
-        List<IssueSearchDTO> issueSearchDTOList = issueSearchService.issueSearch(title);
+    @GetMapping("/api/project/{projectId}/issue")
+    public ResponseEntity<?> issueSearch(@PathVariable Long projectId,@RequestParam String title) {
+        List<IssueSearchDTO> issueSearchDTOList = issueSearchService.issueSearch(projectId,title);
 
         ResponseMessage message = new ResponseMessage(200, "검색 완료", issueSearchDTOList);
         return new ResponseEntity<>(message, HttpStatus.OK);
@@ -304,12 +322,15 @@ public class IssueController {
     @PostMapping("api/issue/{issueId}/images")
     public ResponseEntity<?> uploadImageAboutIssue(@PathVariable("issueId") Long issueId, @RequestPart(value="image", required=false) List<MultipartFile> files ) throws IOException {
         log.info("이슈 관련 이미지 추가");
-
-        System.out.println("전송 받은 사진 개수 = " + files.toArray().length);
+        if (files == null)
+            log.info("전송 받은 사진 개수 = 0");
+        else
+            log.info("전송 받은 사진 개수 = " + files.toArray().length);
 
         issueService.saveImageAboutIssue(issueId, files);
 
         ResponseMessage message = new ResponseMessage(200, "이미지 첨부 완료");
         return new ResponseEntity<>(message, HttpStatus.OK);
     }
+
 }

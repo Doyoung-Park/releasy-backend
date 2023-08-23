@@ -34,6 +34,9 @@ public class IssueDocument {
     @Field(name = "member_id_report", type = FieldType.Long)
     private Long memberReport;    // 이슈 보고자
 
+    @Field(name = "project_id", type = FieldType.Long)
+    private Long projectId;    // 프로젝트 id
+
     @Id
     private Long id;
 

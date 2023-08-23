@@ -17,6 +17,10 @@ public class NotificationDTO {
     private String message;
     private String type;
 
+    private String notiType;
+
+    private Long projectId;
+
     private Long typeSpecificId; // 타입에 해당하는 특정id
     private Date createdAt; // 생성일
 
@@ -26,6 +30,7 @@ public class NotificationDTO {
                 NotificationDTO.builder()
                         .message(notification.getMessage())
                         .type(notification.getType())
+                        .projectId(notification.getProject().getId())
                         .createdAt(notification.getCreatedAt())
                         .typeSpecificId(notification.getTypeSpecificId())
                         .build()

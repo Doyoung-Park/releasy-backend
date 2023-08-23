@@ -68,14 +68,14 @@ public class MemberProjectRepository{
     }
 
 
-    public List<Project> findOtherProject(Long memberId,Long groupId, String isActive) {
+    public List<Project> findOtherProject(Long memberId, Long groupId, String isActive) {
         return query
                 .select(project)
-                .from(memberProject)
-                .where(memberProject.member.id.ne(memberId)
+                .from(project)
+                .leftJoin(memberProject).on(project.id.eq(memberProject.project.id).and(memberProject.member.id.eq(memberId)))
+                .where(memberProject.id.isNull() // This ensures that the project is not associated with the member
                         .and(project.isActive.eq(isActive)
                                 .and(project.group.id.eq(groupId))))
-
                 .fetch();
     }
 

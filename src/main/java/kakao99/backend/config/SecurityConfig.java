@@ -60,7 +60,7 @@ public class SecurityConfig {
                                 .requestMatchers("/member/signup").permitAll()
                                 .requestMatchers("/**").permitAll()
                                 .anyRequest().authenticated())
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.ALWAYS))
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .oauth2Login(oauth2 -> oauth2.successHandler(oAuth2SuccessHandler).userInfoEndpoint(userInfoEndpointConfig -> userInfoEndpointConfig.userService(customOAuth2UserService)))
                 .apply(new JwtSecurityConfig(tokenProvider));
 //                .authenticationEntryPoint(jwtAuthenticationEntryPoint)
