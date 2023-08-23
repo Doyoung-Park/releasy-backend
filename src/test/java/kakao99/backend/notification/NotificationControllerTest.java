@@ -13,6 +13,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -29,9 +30,10 @@ public class NotificationControllerTest {
     @DisplayName("Notification 조회 테스트")
     @Test
     public void getNotificationTest() throws Exception {
-        final Long projectId = 5L;
+        final Long projectId = 1L;
         final String url = (String) "/api/project/"+ projectId +"/notification";
         ResultActions result = mockMvc.perform(MockMvcRequestBuilders.get(url));
         result.andExpect(status().isOk());
+        result.andDo(MockMvcResultHandlers.print());
     }
 }
